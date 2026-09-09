@@ -39,7 +39,7 @@ export function SiteHeader() {
             Inicio
           </Button>
           <Link href="/" className="flex min-w-0 items-baseline gap-2">
-            <span className="font-heading text-xl tracking-tight">Merienda SJ</span>
+            <span className="font-heading text-xl tracking-tight">Merienda</span>
             <span className="hidden text-xs text-muted-foreground lg:inline">San Juan, Argentina</span>
           </Link>
         </div>
@@ -73,7 +73,7 @@ export function SiteHeader() {
             </SheetTrigger>
             <SheetContent>
               <SheetHeader>
-                <SheetTitle>Merienda SJ</SheetTitle>
+                <SheetTitle>Merienda</SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-2 px-4">
                 <Link href="/" className="rounded-lg px-2 py-2 text-base hover:bg-accent">

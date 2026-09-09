@@ -17,8 +17,8 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: {
-    default: "Merienda SJ — Confiterías y cafés de San Juan",
-    template: "%s · Merienda SJ",
+    default: "Merienda — Confiterías y cafés de San Juan",
+    template: "%s · Merienda",
   },
   description:
     "Guía sanjuanina de confiterías, cafés y casas de té en toda la provincia: Capital, Zonda, Ullum, Jáchal, Calingasta y más. Incluye locales que circulan por Instagram.",

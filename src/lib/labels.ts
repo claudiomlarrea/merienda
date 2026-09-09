@@ -51,5 +51,5 @@ export function mapsUrl(query: string) {
 
 export function whatsappUrl(phone: string, name: string) {
   const digits = phone.replace(/[^\d]/g, "");
-  return `https://wa.me/${digits}?text=${encodeURIComponent(`Hola, vi ${name} en Merienda SJ y quería confirmar horario.`)}`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(`Hola, vi ${name} en Merienda y quería confirmar horario.`)}`;
 }

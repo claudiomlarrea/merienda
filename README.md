@@ -1,4 +1,4 @@
-# Merienda SJ
+# Merienda
 
 Guía sanjuanina de confiterías, cafés y casas de té en toda la provincia. Junta lo que aparece en Google con lo que circula por Instagram, Facebook o un recorrido por Zonda, Ullum, Calingasta, Jáchal, Iglesia y Caucete — y también los cafés de Capital.
 
