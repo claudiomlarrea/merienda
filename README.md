@@ -6,8 +6,9 @@ Hay locales que la gente del departamento conoce y casi no aparecen en los busca
 
 ## Qué incluye esta versión
 
-- Fichas reales de Capital, Rivadavia, Rawson, Zonda, Ullum, Calingasta, Jáchal, Iglesia y Caucete.
-- Filtro **Casi solo en Instagram** y departamentos con pocas fichas a propósito.
+- Fichas de Capital, Rivadavia, Rawson, Zonda, Ullum, Calingasta, Jáchal, Iglesia, Caucete, Chimbas, Albardón, Pocito, Santa Lucía, Valle Fértil y Sarmiento.
+- Página **Huecos**: cómo seguir buscando (recorrido, Instagram por ubicación, Facebook de pueblo) y departamentos con pocas fichas.
+- El buscador ignora tildes y entiende “cafecito”, “merienda”, “facturas”.
 - Rutas de merienda (Zonda–Ullum, Libertador, Barreal, Jáchal).
 - Formulario para **sumar un local** aunque falte la calle. En este prototipo se guarda en el navegador.
 

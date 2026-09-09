@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { departments } from "@/lib/departments";
 import { kindLabels, visibilityLabels } from "@/lib/labels";
 import { places as catalog } from "@/lib/places";
+import { matchesPlaceQuery } from "@/lib/search";
 import { PLACE_KINDS, VISIBILITY, type Place } from "@/lib/types";
 import { useCommunity } from "@/context/community-places";
 import { useSaved } from "@/context/saved-places";
@@ -17,7 +18,7 @@ import { cn } from "@/lib/utils";
 const emptyCopy: Record<string, { title: string; body: string }> = {
   search: {
     title: "Nada con esa búsqueda",
-    body: "Probá el nombre del local, un barrio o “medialunas”. Si no está, es exactamente el hueco que queremos tapar: sumalo.",
+    body: "Probá “cafecito”, “merienda” o el departamento. Si sigue sin aparecer, es un hueco: sumalo o mirá cómo se busca.",
   },
   filter: {
     title: "No hay fichas con ese filtro",
@@ -54,27 +55,16 @@ export function PlacesBrowser({
   }
 
   const filtered = useMemo(() => {
-    const query = qParam.trim().toLowerCase();
+    const query = q.trim();
     return all.filter((place) => {
       if (department && place.department !== department) return false;
       if (kind && place.kind !== kind) return false;
       if (visibility && place.visibility !== visibility) return false;
       if (onlySaved && !saved.includes(place.slug)) return false;
       if (!query) return true;
-      const haystack = [
-        place.name,
-        place.locality,
-        place.address,
-        place.blurb,
-        place.story,
-        ...place.tags,
-        ...place.orderThis,
-      ]
-        .join(" ")
-        .toLowerCase();
-      return haystack.includes(query);
+      return matchesPlaceQuery(place, query);
     });
-  }, [all, department, kind, visibility, onlySaved, saved, qParam]);
+  }, [all, department, kind, visibility, onlySaved, saved, q]);
 
   return (
     <div className="space-y-6">
@@ -92,9 +82,27 @@ export function PlacesBrowser({
           id="buscar"
           value={q}
           onChange={(event) => setQ(event.target.value)}
-          placeholder="Medialunas, Villa Krause, Zonda…"
+          placeholder="Cafecito, merienda, Zonda, facturas…"
           className="h-11 bg-card text-base"
         />
+        <p className="text-xs text-muted-foreground">
+          Busca al escribir. Ignora tildes. Entiende “cafecito”, “merienda” y “facturas”.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {["cafecito", "merienda", "facturas", "instagram"].map((term) => (
+            <button
+              key={term}
+              type="button"
+              className="rounded-full border border-border bg-card px-3 py-1 text-xs hover:bg-accent"
+              onClick={() => {
+                setQ(term);
+                setParam("q", term);
+              }}
+            >
+              {term}
+            </button>
+          ))}
+        </div>
       </form>
 
       <div className="flex flex-col gap-4">

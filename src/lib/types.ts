@@ -13,6 +13,7 @@ export const DEPARTMENTS = [
   "iglesia",
   "caucete",
   "valle-fertil",
+  "sarmiento",
 ] as const;
 
 export type DepartmentId = (typeof DEPARTMENTS)[number];

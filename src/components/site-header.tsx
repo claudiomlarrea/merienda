@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/lugares", label: "Lugares" },
   { href: "/departamentos", label: "Departamentos" },
+  { href: "/huecos", label: "Huecos" },
   { href: "/rutas", label: "Rutas" },
   { href: "/sumar", label: "Sumar un local" },
 ];

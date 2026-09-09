@@ -90,6 +90,13 @@ export const departments: Department[] = [
     region: "Este",
     pitch: "Comedores de pueblo camino a Ischigualasto. No son “cafés de especialidad”: son merienda de verdad.",
   },
+  {
+    id: "sarmiento",
+    name: "Sarmiento",
+    region: "Sur · Ruta 40",
+    pitch:
+      "Media Agua y la Ruta 40: cafés de pueblo, pastelerías y paradas de merienda que no entran en las listas de Capital.",
+  },
 ];
 
 export function getDepartment(id: string) {

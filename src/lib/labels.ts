@@ -38,6 +38,7 @@ export const departmentShort: Record<DepartmentId, string> = {
   iglesia: "Iglesia",
   caucete: "Caucete",
   "valle-fertil": "Valle Fértil",
+  sarmiento: "Sarmiento",
 };
 
 export function instagramUrl(handle: string) {
