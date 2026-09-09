@@ -7,8 +7,9 @@ export function SiteFooter() {
         <div>
           <p className="font-heading text-lg">Merienda</p>
           <p className="mt-1 max-w-md text-sm text-muted-foreground">
-            Una guía armada desde recorridos por Zonda, Ullum y otros departamentos, más fichas de redes
-            y boca en boca. Los horarios de pueblo cambian: confirmá antes de cruzar el dique.
+            Una guía armada desde recorridos por Zonda, Ullum y otros departamentos, más fichas de
+            redes, Maps y boca en boca. Cafés para merendar y restos para almorzar. Los horarios
+            de pueblo cambian: confirmá antes de cruzar el dique.
           </p>
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">

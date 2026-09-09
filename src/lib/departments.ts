@@ -6,7 +6,7 @@ export const departments: Department[] = [
     name: "Capital",
     region: "Gran San Juan",
     pitch:
-      "Peatonal, pasillos, especialidad y confiterías clásicas. El corazón de la merienda sanjuanina, con locales a la calle y otros más escondidos.",
+      "Peatonal, pasillos, especialidad y confiterías clásicas. En Desamparados y Libertador también se almuerza: restos de circunvalación, Cereza y cafés de barrio.",
   },
   {
     id: "rivadavia",

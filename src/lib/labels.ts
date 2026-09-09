@@ -1,4 +1,4 @@
-import type { DepartmentId, PlaceKind, Source, Visibility } from "@/lib/types";
+import type { DepartmentId, Moment, Place, PlaceKind, Source, Visibility } from "@/lib/types";
 
 export const kindLabels: Record<PlaceKind, string> = {
   confiteria: "Confitería",
@@ -7,7 +7,35 @@ export const kindLabels: Record<PlaceKind, string> = {
   panaderia: "Panadería",
   pasteleria: "Pastelería",
   comedor: "Comedor",
+  restaurante: "Restaurante",
 };
+
+export const momentLabels: Record<Moment, string> = {
+  merendar: "Merendar",
+  comer: "Comer",
+};
+
+const MERENDA_KINDS: PlaceKind[] = ["confiteria", "cafe", "casa-de-te", "panaderia", "pasteleria"];
+const COMER_KINDS: PlaceKind[] = ["restaurante", "comedor"];
+
+export function matchesMoment(place: Place, moment: string) {
+  if (!moment) return true;
+  if (moment === "merendar") {
+    return (
+      MERENDA_KINDS.includes(place.kind) ||
+      place.tags.includes("merienda") ||
+      place.tags.includes("desayuno")
+    );
+  }
+  if (moment === "comer") {
+    return (
+      COMER_KINDS.includes(place.kind) ||
+      place.tags.includes("almuerzo") ||
+      place.tags.includes("cena")
+    );
+  }
+  return true;
+}
 
 export const visibilityLabels: Record<Visibility, string> = {
   redes: "Casi solo en redes",

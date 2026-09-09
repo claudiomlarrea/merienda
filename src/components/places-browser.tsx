@@ -7,10 +7,10 @@ import { PlaceCard } from "@/components/place-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { departments } from "@/lib/departments";
-import { kindLabels, normalizeVisibilityFilter, visibilityLabels } from "@/lib/labels";
+import { kindLabels, matchesMoment, momentLabels, normalizeVisibilityFilter, visibilityLabels } from "@/lib/labels";
 import { places as catalog } from "@/lib/places";
 import { matchesPlaceQuery } from "@/lib/search";
-import { PLACE_KINDS, VISIBILITY, type Place } from "@/lib/types";
+import { MOMENTS, PLACE_KINDS, VISIBILITY, type Place } from "@/lib/types";
 import { useCommunity } from "@/context/community-places";
 import { useSaved } from "@/context/saved-places";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 const emptyCopy: Record<string, { title: string; body: string }> = {
   search: {
     title: "Nada con esa búsqueda",
-    body: "Probá “cafecito”, “merienda” o el departamento. Si sigue sin aparecer, es un hueco: sumalo o mirá cómo se busca.",
+    body: "Probá “cafecito”, “almuerzo”, “merienda” o el departamento. Si sigue sin aparecer, es un hueco: sumalo o mirá cómo se busca.",
   },
   filter: {
     title: "No hay fichas con ese filtro",
@@ -39,6 +39,7 @@ export function PlacesBrowser({
 
   const department = initialDepartment ?? searchParams.get("depto") ?? "";
   const kind = searchParams.get("tipo") ?? "";
+  const moment = searchParams.get("momento") ?? "";
   const visibility = normalizeVisibilityFilter(searchParams.get("visibilidad") ?? "");
   const onlySaved = searchParams.get("guardados") === "1";
   const qParam = searchParams.get("q") ?? "";
@@ -59,12 +60,13 @@ export function PlacesBrowser({
     return all.filter((place) => {
       if (department && place.department !== department) return false;
       if (kind && place.kind !== kind) return false;
+      if (moment && !matchesMoment(place, moment)) return false;
       if (visibility && place.visibility !== visibility) return false;
       if (onlySaved && !saved.includes(place.slug)) return false;
       if (!query) return true;
       return matchesPlaceQuery(place, query);
     });
-  }, [all, department, kind, visibility, onlySaved, saved, q]);
+  }, [all, department, kind, moment, visibility, onlySaved, saved, q]);
 
   return (
     <div className="space-y-6">
@@ -83,7 +85,7 @@ export function PlacesBrowser({
             id="buscar"
             value={q}
             onValueChange={(value: string) => setQ(value)}
-            placeholder="Cafecito, merienda, Zonda, facturas…"
+            placeholder="Cafecito, almuerzo, Zonda, facturas…"
             className="h-11 bg-card text-base"
           />
           <Button type="submit" size="lg" className="sm:h-11">
@@ -91,10 +93,10 @@ export function PlacesBrowser({
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Busca al escribir. Ignora tildes. Entiende “cafecito”, “merienda” y “facturas”.
+          Busca al escribir. Ignora tildes. Entiende “cafecito”, “merienda”, “almuerzo” y “facturas”.
         </p>
         <div className="flex flex-wrap gap-2">
-          {["cafecito", "merienda", "facturas", "redes"].map((term) => (
+          {["cafecito", "merienda", "almuerzo", "facturas"].map((term) => (
             <button
               key={term}
               type="button"
@@ -127,6 +129,21 @@ export function PlacesBrowser({
             ))}
           </FilterRow>
         ) : null}
+
+        <FilterRow label="Para">
+          <Chip active={!moment} onClick={() => setParam("momento", "")}>
+            Todos
+          </Chip>
+          {MOMENTS.map((item) => (
+            <Chip
+              key={item}
+              active={moment === item}
+              onClick={() => setParam("momento", item)}
+            >
+              {momentLabels[item]}
+            </Chip>
+          ))}
+        </FilterRow>
 
         <FilterRow label="Tipo">
           <Chip active={!kind} onClick={() => setParam("tipo", "")}>

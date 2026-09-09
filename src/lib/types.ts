@@ -25,7 +25,11 @@ export const PLACE_KINDS = [
   "panaderia",
   "pasteleria",
   "comedor",
+  "restaurante",
 ] as const;
+
+export const MOMENTS = ["merendar", "comer"] as const;
+export type Moment = (typeof MOMENTS)[number];
 
 export type PlaceKind = (typeof PLACE_KINDS)[number];
 

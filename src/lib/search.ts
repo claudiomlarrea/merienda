@@ -20,6 +20,13 @@ const SYNONYMS: Record<string, string[]> = {
   medialuna: ["medialuna", "factura"],
   te: ["casa de te", "infusion", "merienda"],
   panaderia: ["panaderia", "confiteria", "factura"],
+  almuerzo: ["almuerzo", "restaurante", "comedor", "resto"],
+  comer: ["restaurante", "comedor", "almuerzo", "cena", "resto"],
+  restaurante: ["restaurante", "resto", "comedor", "almuerzo"],
+  resto: ["restaurante", "comedor"],
+  milanesa: ["milanesa", "bodegon", "almuerzo"],
+  asado: ["asado", "parrilla", "restaurante"],
+  parrilla: ["parrilla", "asado", "restaurante"],
 };
 
 function expandToken(token: string) {

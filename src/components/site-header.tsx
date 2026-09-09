@@ -59,12 +59,12 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <Button
-            render={<Link href="/?visibilidad=redes#explorar" />}
+            render={<Link href="/?momento=comer#explorar" />}
             size="sm"
             variant="ghost"
             className="hidden sm:inline-flex"
           >
-            Solo redes
+            Dónde comer
           </Button>
           <Sheet>
             <SheetTrigger render={<Button variant="outline" size="icon" className="md:hidden" />}>

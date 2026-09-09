@@ -17,11 +17,11 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: {
-    default: "Merienda — Confiterías y cafés de San Juan",
+    default: "Merienda — Dónde merendar y comer en San Juan",
     template: "%s · Merienda",
   },
   description:
-    "Guía sanjuanina de confiterías, cafés y casas de té en toda la provincia: Capital, Zonda, Ullum, Jáchal, Calingasta y más. Incluye locales que circulan por redes o de boca en boca.",
+    "Guía sanjuanina de confiterías, cafés y lugares para comer en toda la provincia: Capital, Zonda, Ullum, Jáchal, Calingasta y más. Incluye locales que circulan por redes o de boca en boca.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
