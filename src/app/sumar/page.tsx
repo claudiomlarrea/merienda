@@ -28,7 +28,7 @@ export default function SumarPage() {
     const kind = String(data.get("kind") ?? "") as PlaceKind;
     const locality = String(data.get("locality") ?? "").trim();
     const address = String(data.get("address") ?? "").trim();
-    const instagram = String(data.get("instagram") ?? "").trim().replace(/^@/, "");
+    const handle = String(data.get("handle") ?? "").trim().replace(/^@/, "");
     const story = String(data.get("story") ?? "").trim();
 
     if (!name || !department || !kind) {
@@ -43,19 +43,19 @@ export default function SumarPage() {
       kind,
       department,
       locality: locality || departments.find((item) => item.id === department)?.name || "",
-      address: address || "Ubicación a confirmar — sumada desde Instagram o recorrido.",
+      address: address || "Ubicación a confirmar — sumada desde redes o recorrido.",
       addressConfirmed: Boolean(address),
-      hours: String(data.get("hours") ?? "").trim() || "Confirmá por Instagram o Facebook.",
+      hours: String(data.get("hours") ?? "").trim() || "Confirmá por redes.",
       phone: String(data.get("phone") ?? "").trim() || undefined,
-      instagram: instagram || undefined,
-      visibility: "instagram",
-      sources: instagram ? ["instagram"] : ["recorrido", "boca-en-boca"],
+      handle: handle || undefined,
+      visibility: handle ? "redes" : "poco-conocido",
+      sources: handle ? ["redes"] : ["recorrido", "boca-en-boca"],
       blurb: story.slice(0, 180) || `Local de ${locality || department} que todavía no estaba en la guía.`,
       story:
         story ||
-        "Ficha comunitaria. Falta completar horario o dirección. Si lo encontraste en una story, es exactamente el tipo de lugar que esta guía quiere juntar.",
+        "Ficha comunitaria. Falta completar horario o dirección. Si lo encontraste por redes o recorriendo, es exactamente el tipo de lugar que esta guía quiere juntar.",
       orderThis: ["Lo que recomiende quien atiende"],
-      tags: ["instagram", "comunitario"],
+      tags: ["redes", "comunitario"],
       image: fallbackImage,
       imageAlt: "Café",
       mapsQuery: `${name} ${locality} San Juan Argentina`,
@@ -123,8 +123,8 @@ export default function SumarPage() {
         <Field label="Dirección (si la sabés)" htmlFor="address">
           <Input id="address" name="address" placeholder="Puede quedar vacío" className="h-11 bg-card" />
         </Field>
-        <Field label="Instagram" htmlFor="instagram">
-          <Input id="instagram" name="instagram" placeholder="@el_local" className="h-11 bg-card" />
+        <Field label="Usuario en redes" htmlFor="handle">
+          <Input id="handle" name="handle" placeholder="@el_local" className="h-11 bg-card" />
         </Field>
         <Field label="Teléfono" htmlFor="phone">
           <Input id="phone" name="phone" placeholder="264…" className="h-11 bg-card" />
@@ -137,7 +137,7 @@ export default function SumarPage() {
             id="story"
             name="story"
             rows={5}
-            placeholder="Una story de una amiga de Ullum. El café con leche y las facturas del sábado."
+            placeholder="Lo viste recorriendo, te lo pasó alguien, el café con leche y las facturas del sábado."
             className="bg-card"
           />
         </Field>

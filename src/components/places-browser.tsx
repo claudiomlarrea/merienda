@@ -7,7 +7,7 @@ import { PlaceCard } from "@/components/place-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { departments } from "@/lib/departments";
-import { kindLabels, visibilityLabels } from "@/lib/labels";
+import { kindLabels, normalizeVisibilityFilter, visibilityLabels } from "@/lib/labels";
 import { places as catalog } from "@/lib/places";
 import { matchesPlaceQuery } from "@/lib/search";
 import { PLACE_KINDS, VISIBILITY, type Place } from "@/lib/types";
@@ -39,7 +39,7 @@ export function PlacesBrowser({
 
   const department = initialDepartment ?? searchParams.get("depto") ?? "";
   const kind = searchParams.get("tipo") ?? "";
-  const visibility = searchParams.get("visibilidad") ?? "";
+  const visibility = normalizeVisibilityFilter(searchParams.get("visibilidad") ?? "");
   const onlySaved = searchParams.get("guardados") === "1";
   const qParam = searchParams.get("q") ?? "";
   const [q, setQ] = useState(qParam);
@@ -94,7 +94,7 @@ export function PlacesBrowser({
           Busca al escribir. Ignora tildes. Entiende “cafecito”, “merienda” y “facturas”.
         </p>
         <div className="flex flex-wrap gap-2">
-          {["cafecito", "merienda", "facturas", "instagram"].map((term) => (
+          {["cafecito", "merienda", "facturas", "redes"].map((term) => (
             <button
               key={term}
               type="button"

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { places } from "@/lib/places";
 
 export default function HomePage() {
-  const instagramOnly = places.filter((place) => place.visibility === "instagram").length;
+  const redesOnly = places.filter((place) => place.visibility === "redes").length;
   const departmentsCovered = new Set(places.map((place) => place.department)).size;
 
   return (
@@ -17,7 +17,7 @@ export default function HomePage() {
         </h1>
         <p className="mt-5 max-w-2xl text-lg leading-8 text-pretty text-muted-foreground">
           Capital, Rivadavia, Zonda, Ullum y el resto de los departamentos, en una sola guía.
-          Están los cafés que ya querés y también los que solo circulan por Instagram. La idea es
+          Están los cafés que ya querés y también los que solo circulan por redes. La idea es
           sumar, no elegir un barrio.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
@@ -25,11 +25,11 @@ export default function HomePage() {
             Comenzar a buscar
           </Button>
           <Button
-            render={<Link href="/?visibilidad=instagram#explorar" />}
+            render={<Link href="/?visibilidad=redes#explorar" />}
             size="lg"
             variant="outline"
           >
-            Solo Instagram
+            Solo redes
           </Button>
         </div>
         <dl className="mt-10 grid max-w-xl grid-cols-3 gap-4 text-sm">
@@ -43,7 +43,7 @@ export default function HomePage() {
           </div>
           <div>
             <dt className="text-muted-foreground">Casi solo redes</dt>
-            <dd className="font-heading text-3xl">{instagramOnly}</dd>
+            <dd className="font-heading text-3xl">{redesOnly}</dd>
           </div>
         </dl>
       </section>

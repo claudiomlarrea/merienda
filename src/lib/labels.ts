@@ -10,16 +10,15 @@ export const kindLabels: Record<PlaceKind, string> = {
 };
 
 export const visibilityLabels: Record<Visibility, string> = {
-  instagram: "Casi solo en Instagram",
+  redes: "Casi solo en redes",
   "poco-conocido": "Poco conocido",
   conocido: "Más conocido",
 };
 
 export const sourceLabels: Record<Source, string> = {
-  instagram: "Instagram",
-  facebook: "Facebook",
+  redes: "Redes",
   recorrido: "Recorrido",
-  google: "Google",
+  google: "Maps",
   "boca-en-boca": "Boca en boca",
 };
 
@@ -41,15 +40,24 @@ export const departmentShort: Record<DepartmentId, string> = {
   sarmiento: "Sarmiento",
 };
 
-export function instagramUrl(handle: string) {
+export function profileUrl(handle: string) {
   return `https://www.instagram.com/${handle.replace(/^@/, "")}/`;
 }
 
-export function mapsUrl(query: string) {
+export function mapsSearchUrl(query: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+export function mapsDirectionsUrl(destination: string) {
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
 }
 
 export function whatsappUrl(phone: string, name: string) {
   const digits = phone.replace(/[^\d]/g, "");
   return `https://wa.me/${digits}?text=${encodeURIComponent(`Hola, vi ${name} en Merienda y quería confirmar horario.`)}`;
+}
+
+export function normalizeVisibilityFilter(value: string) {
+  if (value === "instagram") return "redes";
+  return value;
 }

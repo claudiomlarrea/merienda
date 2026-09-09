@@ -30,6 +30,7 @@ export function placeHaystack(place: Place) {
   return fold(
     [
       place.name,
+      place.handle ? `@${place.handle}` : "",
       place.locality,
       place.address,
       place.blurb,

@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import { MapsDirectionsButton } from "@/components/maps-directions-button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { VisibilityBadge } from "@/components/visibility-badge";
 import { departmentShort, kindLabels } from "@/lib/labels";
 import type { Place } from "@/lib/types";
@@ -9,7 +10,7 @@ import type { Place } from "@/lib/types";
 export function PlaceCard({ place }: { place: Place }) {
   return (
     <Card className="h-full py-0 ring-foreground/8 transition-shadow hover:ring-foreground/20">
-      <Link href={`/lugares/${place.slug}`} className="flex h-full flex-col">
+      <Link href={`/lugares/${place.slug}`} className="flex min-h-0 flex-1 flex-col">
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
             src={place.image}
@@ -32,6 +33,9 @@ export function PlaceCard({ place }: { place: Place }) {
           <p className="mt-auto line-clamp-3 text-sm leading-relaxed">{place.blurb}</p>
         </CardContent>
       </Link>
+      <CardFooter className="bg-transparent">
+        <MapsDirectionsButton query={place.mapsQuery} name={place.name} size="sm" className="w-full" />
+      </CardFooter>
     </Card>
   );
 }

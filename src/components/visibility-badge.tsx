@@ -3,7 +3,7 @@ import { visibilityLabels } from "@/lib/labels";
 import type { Visibility } from "@/lib/types";
 
 export function VisibilityBadge({ value }: { value: Visibility }) {
-  if (value === "instagram") {
+  if (value === "redes") {
     return (
       <Badge className="bg-primary text-primary-foreground">{visibilityLabels[value]}</Badge>
     );

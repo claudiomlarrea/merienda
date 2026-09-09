@@ -17,7 +17,7 @@ export default function PlacePage({ params }: { params: Promise<{ slug: string }
       <div className="mx-auto flex w-full max-w-xl flex-col items-start gap-4 px-4 py-20">
         <h1 className="font-heading text-3xl">Ese local no está… todavía</h1>
         <p className="text-muted-foreground">
-          Puede ser un @ de Instagram que todavía no cargamos. Si lo conocés, sumalo.
+          Puede ser un @ que todavía no cargamos. Si lo conocés, sumalo.
         </p>
         <Button render={<Link href="/sumar" />}>Sumar un local</Button>
       </div>

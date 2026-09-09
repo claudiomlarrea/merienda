@@ -29,16 +29,10 @@ export const PLACE_KINDS = [
 
 export type PlaceKind = (typeof PLACE_KINDS)[number];
 
-export const VISIBILITY = ["instagram", "poco-conocido", "conocido"] as const;
+export const VISIBILITY = ["redes", "poco-conocido", "conocido"] as const;
 export type Visibility = (typeof VISIBILITY)[number];
 
-export const SOURCES = [
-  "instagram",
-  "facebook",
-  "recorrido",
-  "google",
-  "boca-en-boca",
-] as const;
+export const SOURCES = ["redes", "recorrido", "google", "boca-en-boca"] as const;
 export type Source = (typeof SOURCES)[number];
 
 export type Place = {
@@ -51,8 +45,7 @@ export type Place = {
   addressConfirmed: boolean;
   hours: string;
   phone?: string;
-  instagram?: string;
-  facebook?: string;
+  handle?: string;
   visibility: Visibility;
   sources: Source[];
   blurb: string;

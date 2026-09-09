@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useSyncExternalStore } from "react";
-import type { Place } from "@/lib/types";
+import type { Place, Source, Visibility } from "@/lib/types";
+import { SOURCES, VISIBILITY } from "@/lib/types";
 
 const KEY = "merienda-sj-community";
 const listeners = new Set<() => void>();
@@ -23,6 +24,33 @@ function getServerSnapshot() {
   return "[]";
 }
 
+type LegacyPlace = Omit<Place, "visibility" | "sources" | "handle"> & {
+  visibility?: string;
+  sources?: string[];
+  handle?: string;
+  instagram?: string;
+};
+
+function migrateSource(value: string): Source | null {
+  if (value === "instagram" || value === "facebook") return "redes";
+  return SOURCES.includes(value as Source) ? (value as Source) : null;
+}
+
+function migrateVisibility(value?: string): Visibility {
+  if (value === "instagram") return "redes";
+  return VISIBILITY.includes(value as Visibility) ? (value as Visibility) : "poco-conocido";
+}
+
+function migratePlace(raw: LegacyPlace): Place {
+  const sources = [...new Set((raw.sources ?? []).map(migrateSource).filter((item): item is Source => Boolean(item)))];
+  return {
+    ...raw,
+    handle: raw.handle ?? raw.instagram,
+    visibility: migrateVisibility(raw.visibility),
+    sources: sources.length ? sources : ["boca-en-boca"],
+  };
+}
+
 type CommunityContextValue = {
   extras: Place[];
   add: (place: Place) => void;
@@ -34,7 +62,7 @@ export function CommunityProvider({ children }: { children: React.ReactNode }) {
   const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const extras = useMemo(() => {
     try {
-      return JSON.parse(raw) as Place[];
+      return (JSON.parse(raw) as LegacyPlace[]).map(migratePlace);
     } catch {
       return [];
     }
@@ -43,7 +71,7 @@ export function CommunityProvider({ children }: { children: React.ReactNode }) {
   const add = useCallback((place: Place) => {
     const current = (() => {
       try {
-        return JSON.parse(getSnapshot()) as Place[];
+        return (JSON.parse(getSnapshot()) as LegacyPlace[]).map(migratePlace);
       } catch {
         return [] as Place[];
       }

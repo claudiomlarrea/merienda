@@ -21,7 +21,7 @@ export default function HuecosPage() {
     <div className="mx-auto w-full max-w-3xl px-4 py-10">
       <h1 className="font-heading text-4xl">Cómo encontrar los cafecitos que faltan</h1>
       <p className="mt-4 text-lg leading-8 text-muted-foreground">
-        Google lista mal los departamentos. Instagram lista de a uno. Esta guía junta las dos
+        Los mapas listan mal los departamentos. Las redes listan de a uno. Esta guía junta las dos
         cosas y todavía tiene huecos: Chimbas, Santa Lucía, Pocito, Albardón y Sarmiento se
         recorren, no se “googlean”.
       </p>
@@ -34,13 +34,13 @@ export default function HuecosPage() {
             una panadería. En Ullum y Zonda eso vale más que una ficha de Maps.
           </li>
           <li>
-            <strong>Instagram por ubicación, no por hashtag turístico.</strong> Abrí el mapa del
-            departamento, stories de vecinos, “seguidos por”. Los cafecitos rara vez usan
+            <strong>Redes por ubicación, no por hashtag turístico.</strong> Abrí el mapa del
+            departamento, publicaciones de vecinos, “seguidos por”. Los cafecitos rara vez usan
             #SanJuanTurismo.
           </li>
           <li>
-            <strong>Facebook del pueblo.</strong> Grupos de Rodeo, Media Agua, Villa Krause, “se
-            vende / se recomienda”. Ahí se entera el horario del sábado.
+            <strong>Grupos del pueblo.</strong> Recomendaciones de Rodeo, Media Agua, Villa Krause,
+            “se vende / se recomienda”. Ahí se entera el horario del sábado.
           </li>
           <li>
             <strong>Turismo y directorios locales.</strong>{" "}
@@ -51,7 +51,7 @@ export default function HuecosPage() {
             <a className="underline underline-offset-4" href="https://sanjuan.geodestinos.ar/site-content/category/206-cafeterias" target="_blank" rel="noreferrer">
               GEOSanJuan
             </a>{" "}
-            tienen fichas que Google no muestra primero.
+            tienen fichas que el mapa no muestra primero.
           </li>
           <li>
             <strong>Preguntar en el mostrador.</strong> La panadería de la esquina sabe el café de

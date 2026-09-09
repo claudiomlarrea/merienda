@@ -26,7 +26,7 @@ export const departments: Department[] = [
     name: "Rawson",
     region: "Gran San Juan",
     pitch:
-      "Villa Krause tiene cafeterías que se mueven por Instagram tanto como por la vereda.",
+      "Villa Krause tiene cafeterías que se mueven por redes tanto como por la vereda.",
   },
   {
     id: "chimbas",
@@ -45,7 +45,7 @@ export const departments: Department[] = [
     name: "Zonda",
     region: "Valle y quebrada",
     pitch:
-      "A 15 minutos de la ciudad y parece otro planeta: casas de té, merienda con cerro y locales que solo circulan en stories.",
+      "A 15 minutos de la ciudad y parece otro planeta: casas de té, merienda con cerro y locales que solo circulan por redes.",
   },
   {
     id: "ullum",
@@ -76,7 +76,7 @@ export const departments: Department[] = [
     id: "iglesia",
     name: "Iglesia",
     region: "Norte andino",
-    pitch: "Rodeo y Las Flores: paradores de montaña. La oferta es chica y se entera por Facebook.",
+    pitch: "Rodeo y Las Flores: paradores de montaña. La oferta es chica y se entera por redes del pueblo.",
   },
   {
     id: "caucete",

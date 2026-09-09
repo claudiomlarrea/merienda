@@ -1,18 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { AtSignIcon, ExternalLinkIcon, MapPinIcon, PhoneIcon } from "lucide-react";
+import { AtSignIcon, ExternalLinkIcon, PhoneIcon } from "lucide-react";
+import { MapsDirectionsButton } from "@/components/maps-directions-button";
 import { SaveButton } from "@/components/save-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VisibilityBadge } from "@/components/visibility-badge";
 import { getDepartment } from "@/lib/departments";
-import {
-  departmentShort,
-  instagramUrl,
-  kindLabels,
-  mapsUrl,
-  sourceLabels,
-} from "@/lib/labels";
+import { departmentShort, kindLabels, profileUrl, sourceLabels } from "@/lib/labels";
 import type { Place } from "@/lib/types";
 
 export function PlaceDetail({ place }: { place: Place }) {
@@ -58,7 +53,10 @@ export function PlaceDetail({ place }: { place: Place }) {
             {place.locality} · {department?.name}
           </p>
         </div>
-        <SaveButton slug={place.slug} name={place.name} />
+        <div className="flex flex-col gap-2 sm:items-end">
+          <SaveButton slug={place.slug} name={place.name} />
+          <MapsDirectionsButton query={place.mapsQuery} name={place.name} variant="default" size="lg" />
+        </div>
       </div>
 
       <p className="mt-6 max-w-3xl text-lg leading-relaxed">{place.blurb}</p>
@@ -78,34 +76,24 @@ export function PlaceDetail({ place }: { place: Place }) {
         </div>
         <div>
           <dt className="text-xs tracking-wide text-muted-foreground uppercase">Cómo llegar</dt>
-          <dd className="mt-1">
-            <a
-              className="inline-flex items-center gap-1 underline underline-offset-4"
-              href={mapsUrl(place.mapsQuery)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <MapPinIcon className="size-4" />
-              Abrir en Google Maps
-            </a>
+          <dd className="mt-2">
+            <MapsDirectionsButton query={place.mapsQuery} name={place.name} size="sm" />
           </dd>
         </div>
       </dl>
 
       <div className="mt-6 flex flex-wrap gap-2">
-        {place.instagram ? (
+        {place.handle ? (
           <Button
-            render={
-              <a href={instagramUrl(place.instagram)} target="_blank" rel="noreferrer" />
-            }
+            render={<a href={profileUrl(place.handle)} target="_blank" rel="noreferrer" />}
             variant="outline"
           >
             <AtSignIcon />
-            @{place.instagram}
+            @{place.handle}
           </Button>
         ) : (
           <span className="stamp rounded-full px-3 py-1 text-[11px] text-muted-foreground">
-            Sin Instagram cargado
+            Sin perfil en redes
           </span>
         )}
         {place.phone ? (
