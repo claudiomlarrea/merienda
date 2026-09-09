@@ -55,6 +55,7 @@ export const COCINA_TAGS = [
   "sushi",
   "parrilla",
   "sin-tacc",
+  "pachata",
 ] as const;
 export type CocinaTag = (typeof COCINA_TAGS)[number];
 

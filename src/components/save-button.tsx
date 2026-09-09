@@ -13,6 +13,7 @@ export function SaveButton({ slug, name }: { slug: string; name: string }) {
       type="button"
       variant={saved ? "default" : "outline"}
       size="sm"
+      className="min-h-11 w-full sm:w-auto"
       onClick={() => toggle(slug)}
       aria-pressed={saved}
       aria-label={saved ? `Sacar ${name} de guardados` : `Guardar ${name}`}

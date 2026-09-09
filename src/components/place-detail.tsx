@@ -14,7 +14,7 @@ export function PlaceDetail({ place }: { place: Place }) {
   const department = getDepartment(place.department);
 
   return (
-    <article className="mx-auto w-full max-w-5xl px-4 py-8">
+    <article className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-8">
       <p className="text-sm text-muted-foreground">
         <Link href="/#explorar" className="hover:underline">
           Lugares
@@ -53,14 +53,20 @@ export function PlaceDetail({ place }: { place: Place }) {
               <Badge variant="secondary">Dirección a confirmar</Badge>
             ) : null}
           </div>
-          <h1 className="font-heading mt-3 text-4xl leading-tight sm:text-5xl">{place.name}</h1>
+          <h1 className="font-heading mt-3 text-3xl leading-tight sm:text-5xl">{place.name}</h1>
           <p className="mt-2 text-lg text-muted-foreground">
             {place.locality} · {department?.name}
           </p>
         </div>
-        <div className="flex flex-col gap-2 sm:items-end">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
           <SaveButton slug={place.slug} name={place.name} />
-          <MapsDirectionsButton query={place.mapsQuery} name={place.name} variant="default" size="lg" />
+          <MapsDirectionsButton
+            query={place.mapsQuery}
+            name={place.name}
+            variant="default"
+            size="lg"
+            className="w-full sm:w-auto"
+          />
         </div>
       </div>
 

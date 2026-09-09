@@ -1341,7 +1341,7 @@ const corePlaces: Place[] = [
     story:
       "Empachate no es un café ni un bodegón: es pachata hecha en el barrio. Entra en “comida artesanal” y casi no aparece si buscás solo cafetería.",
     orderThis: ["Pachata", "Sandwich artesanal"],
-    tags: ["cena", "almuerzo", "artesanal", "desamparados"],
+    tags: ["cena", "almuerzo", "artesanal", "desamparados", "pachata"],
     image: img.gardel,
     imageAlt: "Sándwich abundante",
     mapsQuery: "Empachate pachatería Desamparados San Juan",
@@ -1774,7 +1774,7 @@ const corePlaces: Place[] = [
     story:
       "Redondita no está en Libertador: está al este, en General Paz. Empanadas y milanesas veganas. El Maps de “vegano” la muestra; las guías de asado no. Complementa a Macadamia: acá se come, allá se merienda.",
     orderThis: ["Empanadas veganas", "Milanesa", "Pachata"],
-    tags: ["vegano", "vegetariano", "almuerzo", "cena", "empanadas"],
+    tags: ["vegano", "vegetariano", "almuerzo", "cena", "empanadas", "pachata"],
     image: img.vegan,
     imageAlt: "Comida vegana",
     mapsQuery: "Redondita vegano General Paz 686 Este San Juan",

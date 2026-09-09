@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/#explorar", label: "Lugares" },
+  { href: "/lugares", label: "Lugares" },
   { href: "/departamentos", label: "Departamentos" },
   { href: "/huecos", label: "Huecos" },
   { href: "/rutas", label: "Rutas" },
@@ -26,20 +26,24 @@ export function SiteHeader() {
   const atHome = pathname === "/";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4">
+    <header
+      className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md"
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
+    >
+      <div className="mx-auto flex h-12 w-full max-w-6xl items-center justify-between gap-2 px-4 md:h-16">
         <div className="flex min-w-0 items-center gap-2">
           <Button
             render={<Link href="/" />}
             variant={atHome ? "default" : "outline"}
             size="sm"
+            className="min-h-10 shrink-0"
             aria-current={atHome ? "page" : undefined}
           >
             <HomeIcon />
             Inicio
           </Button>
           <Link href="/" className="flex min-w-0 items-baseline gap-2">
-            <span className="font-heading text-xl tracking-tight">Merienda</span>
+            <span className="font-heading text-lg tracking-tight md:text-xl">Merienda</span>
             <span className="hidden text-xs text-muted-foreground lg:inline">San Juan, Argentina</span>
           </Link>
         </div>
@@ -67,7 +71,7 @@ export function SiteHeader() {
             Dónde comer
           </Button>
           <Sheet>
-            <SheetTrigger render={<Button variant="outline" size="icon" className="md:hidden" />}>
+            <SheetTrigger render={<Button variant="outline" size="icon" className="md:hidden min-h-10 min-w-10" />}>
               <MenuIcon />
               <span className="sr-only">Abrir menú</span>
             </SheetTrigger>
@@ -75,12 +79,12 @@ export function SiteHeader() {
               <SheetHeader>
                 <SheetTitle>Merienda</SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col gap-2 px-4">
-                <Link href="/" className="rounded-lg px-2 py-2 text-base hover:bg-accent">
+              <div className="flex flex-col gap-1 px-4">
+                <Link href="/" className="rounded-lg px-2 py-3 text-base hover:bg-accent">
                   Inicio
                 </Link>
                 {links.map((link) => (
-                  <Link key={link.href} href={link.href} className="rounded-lg px-2 py-2 text-base hover:bg-accent">
+                  <Link key={link.href} href={link.href} className="rounded-lg px-2 py-3 text-base hover:bg-accent">
                     {link.label}
                   </Link>
                 ))}

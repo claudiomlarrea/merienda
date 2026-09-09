@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 const emptyCopy: Record<string, { title: string; body: string }> = {
   search: {
     title: "Nada con esa búsqueda",
-    body: "Probá el departamento (Jáchal, 25 de Mayo) o “herboristería”. Si sigue sin aparecer, es un hueco: sumalo.",
+    body: "Probá el departamento (Jáchal, 25 de Mayo) o “pachatas”, “cafés”, “vinoteca”. Si sigue sin aparecer, es un hueco: sumalo.",
   },
   filter: {
     title: "No hay fichas con ese filtro",
@@ -87,22 +87,32 @@ export function PlacesBrowser({
             id="buscar"
             value={q}
             onValueChange={(value: string) => setQ(value)}
-            placeholder="Helado, sushi, parrilla, vegano, sin tacc…"
-            className="h-11 bg-card text-base"
+            placeholder="Pachatas, cafés, vinoteca, helado…"
+            className="min-h-12 bg-card text-base"
           />
-          <Button type="submit" size="lg" className="sm:h-11">
+          <Button type="submit" size="lg" className="min-h-12 sm:h-12">
             Buscar
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Busca al escribir. Ignora tildes. Entiende “helado”, “parrilla”, “vegano”, “sin tacc” y “herboristería”.
+          Busca al escribir. Ignora tildes. Entiende “pachatas”, “cafés”, “vinoteca”, “helado” y “herboristería”.
         </p>
         <div className="flex flex-wrap gap-2">
-          {["helado", "sushi", "parrilla", "vegano", "sin tacc", "herboristería"].map((term) => (
+          {[
+            "pachatas",
+            "cafés",
+            "vinoteca",
+            "helado",
+            "sushi",
+            "parrilla",
+            "vegano",
+            "sin tacc",
+            "herboristería",
+          ].map((term) => (
             <button
               key={term}
               type="button"
-              className="rounded-full border border-border bg-card px-3 py-1 text-xs hover:bg-accent"
+              className="min-h-11 rounded-full border border-border bg-card px-3.5 py-2 text-sm hover:bg-accent"
               onClick={() => {
                 setQ(term);
                 setParam("q", term);
@@ -250,7 +260,7 @@ function Chip({
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1 text-sm transition-colors",
+        "min-h-11 rounded-full border px-3.5 py-2 text-sm transition-colors",
         active
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-card hover:bg-accent"

@@ -28,6 +28,7 @@ export const cocinaLabels: Record<CocinaTag, string> = {
   sushi: "Sushi",
   parrilla: "Parrilla",
   "sin-tacc": "Sin TACC",
+  pachata: "Pachatas",
 };
 
 export function placeCocinaTags(place: Place): CocinaTag[] {

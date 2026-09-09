@@ -1,0 +1,19 @@
+{
+  "name": "Merienda",
+  "short_name": "Merienda",
+  "description": "Dónde merendar y comer en los 19 departamentos de San Juan.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4efe6",
+  "theme_color": "#f4efe6",
+  "lang": "es-AR",
+  "icons": [
+    {
+      "src": "/fondo-agua-verde.jpg",
+      "sizes": "720x1280",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}

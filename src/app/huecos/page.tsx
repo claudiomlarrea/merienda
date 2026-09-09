@@ -18,8 +18,8 @@ export default function HuecosPage() {
   const thin = coverage.filter((item) => item.count <= 2);
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10">
-      <h1 className="font-heading text-4xl">Cómo encontrar los cafecitos que faltan</h1>
+    <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
+      <h1 className="font-heading text-3xl sm:text-4xl">Cómo encontrar los cafecitos que faltan</h1>
       <p className="mt-4 text-lg leading-8 text-muted-foreground">
         Los mapas listan mal los departamentos. Las redes listan de a uno. Esta guía junta las dos
         cosas y todavía tiene huecos: Angaco, 9 de Julio, Chimbas y 25 de Mayo se recorren, no se
