@@ -78,13 +78,18 @@ export function PlacesBrowser({
         <label className="text-sm font-medium" htmlFor="buscar">
           Buscar
         </label>
-        <Input
-          id="buscar"
-          value={q}
-          onChange={(event) => setQ(event.target.value)}
-          placeholder="Cafecito, merienda, Zonda, facturas…"
-          className="h-11 bg-card text-base"
-        />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Input
+            id="buscar"
+            value={q}
+            onValueChange={(value: string) => setQ(value)}
+            placeholder="Cafecito, merienda, Zonda, facturas…"
+            className="h-11 bg-card text-base"
+          />
+          <Button type="submit" size="lg" className="sm:h-11">
+            Buscar
+          </Button>
+        </div>
         <p className="text-xs text-muted-foreground">
           Busca al escribir. Ignora tildes. Entiende “cafecito”, “merienda” y “facturas”.
         </p>
