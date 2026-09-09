@@ -12,6 +12,9 @@ export function SiteFooter() {
           </p>
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+          <Link href="/" className="hover:underline">
+            Inicio
+          </Link>
           <Link href="/lugares" className="hover:underline">
             Lugares
           </Link>

@@ -12,7 +12,7 @@ export const kindLabels: Record<PlaceKind, string> = {
 export const visibilityLabels: Record<Visibility, string> = {
   instagram: "Casi solo en Instagram",
   "poco-conocido": "Poco conocido",
-  conocido: "Ya circula en el centro",
+  conocido: "Más conocido",
 };
 
 export const sourceLabels: Record<Source, string> = {

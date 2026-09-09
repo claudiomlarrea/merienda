@@ -17,12 +17,12 @@ export default function HomePage() {
       <section className="mx-auto w-full max-w-6xl px-4 pt-10 pb-6 sm:pt-16">
         <p className="stamp inline-block rounded-full px-3 py-1 text-[11px]">San Juan · Argentina</p>
         <h1 className="font-heading mt-5 max-w-3xl text-4xl leading-[1.1] sm:text-6xl">
-          Las confiterías que el centro no te muestra.
+          Confiterías y cafés de toda San Juan.
         </h1>
         <p className="mt-5 max-w-2xl text-lg leading-8 text-pretty text-muted-foreground">
-          Recorrimos Zonda, Ullum y otros departamentos lejos de la peatonal. Hay cafés y
-          confiterías chicas que solo circulan por Instagram —Café Haití es el ejemplo—. Acá
-          están juntas: las conocidas, las de barrio y las que casi no aparecen en Google.
+          Capital, Rivadavia, Zonda, Ullum y el resto de los departamentos, en una sola guía.
+          Están los cafés que ya querés y también los que solo circulan por Instagram —Café Haití
+          es un ejemplo—. La idea es sumar, no elegir un barrio.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button render={<Link href="/lugares" />} size="lg">
@@ -51,9 +51,10 @@ export default function HomePage() {
       <section className="mx-auto w-full max-w-6xl px-4 py-8">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="font-heading text-3xl">Las que no se conocen</h2>
+            <h2 className="font-heading text-3xl">También las menos vistas</h2>
             <p className="mt-2 max-w-xl text-muted-foreground">
-              Instagram, Facebook y el recorrido. No el ranking de la peatonal Tucumán.
+              Locals de departamento y de barrio que aparecen en Instagram, Facebook o de
+              recorrido. Complementan a los cafés de Capital, no los reemplazan.
             </p>
           </div>
           <Button render={<Link href="/lugares?visibilidad=instagram" />} variant="ghost">
@@ -71,14 +72,14 @@ export default function HomePage() {
 
       <section className="mx-auto w-full max-w-6xl px-4 py-8">
         <div className="rounded-3xl bg-primary px-6 py-10 text-primary-foreground sm:px-10">
-          <p className="text-sm uppercase tracking-[0.18em] opacity-80">El problema</p>
+          <p className="text-sm uppercase tracking-[0.18em] opacity-80">La guía</p>
           <h2 className="font-heading mt-2 max-w-2xl text-3xl sm:text-4xl">
-            Google lista el centro. El resto de San Juan merienda igual.
+            Un mapa para merendar en toda la provincia.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 opacity-90">
-            En Capital aparecen Clapton, Bonito, Bendito. En Villa Krause alguien te pasa un @.
-            En Ullum hay un maxikiosco que sirve café y no tiene ficha. Esta guía junta esas
-            tres capas: directorios, redes y lo que se ve yendo.
+            En Capital están Clapton, Bonito, Bendito y tantas otras. En Villa Krause alguien te
+            pasa un @. En Ullum hay un maxikiosco que sirve café. Esta guía junta directorios,
+            redes y lo que se ve recorriendo: cada local suma.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button
@@ -108,7 +109,7 @@ export default function HomePage() {
           <p className="text-xs tracking-wide text-muted-foreground uppercase">02</p>
           <h3 className="font-heading mt-2 text-2xl">El recorrido</h3>
           <p className="mt-3 leading-7 text-muted-foreground">
-            Zonda, Ullum, Calingasta, Jáchal, Iglesia. Un cartel a mano vale más que una ficha de Maps vacía.
+            Zonda, Ullum, Calingasta, Jáchal, Iglesia. Un cartel a mano también entra: si el local existe, merece ficha.
           </p>
         </article>
         <article className="rounded-3xl bg-card p-6 ring-1 ring-foreground/8">

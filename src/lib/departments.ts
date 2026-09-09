@@ -6,14 +6,14 @@ export const departments: Department[] = [
     name: "Capital",
     region: "Gran San Juan",
     pitch:
-      "Peatonal, pasillos escondidos y cafés de especialidad. Acá está lo que todo el mundo ya vio… y un par que no.",
+      "Peatonal, pasillos, especialidad y confiterías clásicas. El corazón de la merienda sanjuanina, con locales a la calle y otros más escondidos.",
   },
   {
     id: "rivadavia",
     name: "Rivadavia",
     region: "Gran San Juan",
     pitch:
-      "Libertador es una ruta de meriendas: casas de té, pastelerías y brunchs que no viven en el centro.",
+      "Libertador es una ruta de meriendas: casas de té, pastelerías y brunchs a lo largo de Rivadavia.",
   },
   {
     id: "santa-lucia",

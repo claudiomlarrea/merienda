@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: "%s · Merienda SJ",
   },
   description:
-    "Guía sanjuanina de confiterías, cafés y casas de té: del centro a Zonda, Ullum, Jáchal y Calingasta. Incluye locales que solo circulan por Instagram.",
+    "Guía sanjuanina de confiterías, cafés y casas de té en toda la provincia: Capital, Zonda, Ullum, Jáchal, Calingasta y más. Incluye locales que circulan por Instagram.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -235,7 +235,7 @@ export const places: Place[] = [
     instagram: "cincouno_cafeteria",
     visibility: "instagram",
     sources: ["instagram", "recorrido"],
-    blurb: "Cafetería de Villa Krause que se mueve por Instagram. En el centro casi nadie la nombra; en Rawson sí.",
+    blurb: "Cafetería de Villa Krause que se mueve mucho por Instagram: desayunos, malteadas y sándwich de campo.",
     story:
       "Cinco Uno es el caso Capital-pero-no: está en el Gran San Juan y aun así vive en las redes. Desayunos, malteadas, sándwich de campo, tartas. Lo conocimos como se conocen estos lugares: un @, una story, un pasaje que no es avenida. Si buscás “cafeterías San Juan” te aparecen los de Tucumán y España; este no.",
     orderThis: ["Sándwich de campo", "Malteada", "Café", "Tarta"],
@@ -278,7 +278,7 @@ export const places: Place[] = [
     instagram: "casalenasj",
     visibility: "poco-conocido",
     sources: ["instagram", "google"],
-    blurb: "Café de especialidad y brunch en Rivadavia. Vive más en Instagram que en las listas del centro.",
+    blurb: "Café de especialidad y brunch en Rivadavia, con mucha vida en Instagram.",
     story:
       "Casa Lena es de los pocos “coffee brunch” fuera de Capital. Saavedra Norte no es peatonal Tucumán: hay que ir a propósito. Café de especialidad, horarios partidos, y un @ que es la fuente de verdad de la carta.",
     orderThis: ["Café de especialidad", "Brunch", "Tostadas"],
@@ -363,7 +363,7 @@ export const places: Place[] = [
     sources: ["google", "instagram"],
     blurb: "Café amplio sobre España: desayuno, merienda y platos para compartir. De los más visibles del centro.",
     story:
-      "Bonito sí se conoce. Lo dejamos en la guía para que el mapa no mienta: Capital tiene oferta, y esa oferta tapa lo que hay en Ullum o Jáchal. Si estás en el centro y querés algo seguro, acá. Si querés salir del circuito, filtrá por “solo Instagram”.",
+      "Bonito es un café amplio sobre España: desayuno, merienda y platos para compartir. De los más visitados de Capital, y parte de esta guía como el resto.",
     orderThis: ["Bonito desayuno", "Flat white", "Merienda para compartir"],
     tags: ["centro", "desayuno", "merienda", "amplio"],
     image: img.bonito,
@@ -384,7 +384,7 @@ export const places: Place[] = [
     sources: ["google", "instagram"],
     blurb: "Café de especialidad en Tucumán, con terraza. El circuito que sí aparece cuando buscás “cafeterías San Juan”.",
     story:
-      "Clapton, Havanna y la peatonal son el mapa oficial. Los dejamos como referencia para contrastar con Café Haití o Cinco Uno: no es que San Juan no tenga cafés; es que todos los directorios muestran los mismos cinco.",
+      "Clapton está en Tucumán con café de especialidad y terraza. Lo listamos junto a los locales de departamento porque la guía es de toda la provincia, no de un solo circuito.",
     orderThis: ["Café de origen", "Tostadas", "Algo de la terraza"],
     tags: ["especialidad", "centro", "terraza", "vinos"],
     image: img.clapton,
@@ -486,7 +486,7 @@ export const places: Place[] = [
     sources: ["instagram", "google", "recorrido"],
     blurb: "Café de especialidad en Jáchal. Para Capital es “el norte”; para Jáchal es el lugar a merendar.",
     story:
-      "Edesia demuestra que el café bueno no es monopolio del centro. Tostadas, brunch, café bien hecho, en Sarmiento 690. Si alguien arma un finde a Jáchal y solo busca parrilla, se pierde la merienda. Esta guía existe para que eso no pase.",
+      "Edesia muestra que el café de especialidad también está en Jáchal. Tostadas, brunch y café bien hecho, en Sarmiento 690. Si alguien arma un finde al norte y solo busca parrilla, se pierde la merienda.",
     orderThis: ["Café de especialidad", "Tostada", "Brunch"],
     tags: ["especialidad", "norte", "merienda", "viaje"],
     image: img.edesia,
