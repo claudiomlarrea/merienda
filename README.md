@@ -19,8 +19,9 @@ Recomendación: subila a **Vercel**. Conectá el repo, `npm run build` corre sol
 ## Qué incluye esta versión
 
 - Los **19 departamentos**, incluidos Angaco, 9 de Julio, San Martín y 25 de Mayo.
-- Filtro **Merendar / Comer**, tipos (heladería, herboristería, pizzería, vinoteca) y **Cocina** (pachatas, parrilla, vegano, sin TACC).
-- Atajos de búsqueda: pachatas, cafés, vinoteca, helado.
+- Filtro **Merendar / Comer**, tipos (heladería, herboristería, pizzería, vinoteca, bodega) y **Cocina** (pachatas, parrilla, vegano, sin TACC).
+- Atajos de búsqueda: pachatas, cafés, vinoteca, bodegas, helado.
+- **Rutas de vino** (Tulum–Pocito, Zonda–Ullum, el este) además de las de merienda.
 - En cada ficha, **Cómo llegar** abre Google Maps con destino al local.
 - Página **Huecos**: Angaco y 9 de Julio siguen cortos; se recorren, no se googlean desde Libertador.
 - El buscador ignora tildes y entiende “pachatas”, “cafés”, “helado”, “parrilla”, “herboristería”, “sin tacc”.

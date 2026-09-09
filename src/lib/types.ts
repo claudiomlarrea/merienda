@@ -33,6 +33,7 @@ export const PLACE_KINDS = [
   "pizzeria",
   "empanadas",
   "vinoteca",
+  "bodega",
   "heladeria",
   "herboristeria",
 ] as const;

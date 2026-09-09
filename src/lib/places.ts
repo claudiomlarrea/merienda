@@ -2205,6 +2205,38 @@ export const meriendaRoutes: MeriendaRoute[] = [
     placeSlugs: ["inna-cafe", "el-astiqueno", "heladeria-valle-de-la-luna"],
     why: "Café, parrilla y helado artesanal en San Agustín. Confirmá el día: Valle Fértil no cierra como la peatonal.",
   },
+  {
+    slug: "ruta-vino-tulum",
+    title: "Ruta del vino · Tulum y Pocito",
+    subtitle: "Lo que tira el Maps de “rutas del vino, San Juan”",
+    duration: "Un día",
+    km: "Alrededor de Capital, ~15–40 km",
+    placeSlugs: [
+      "museo-graffigna",
+      "vinas-de-segisa",
+      "champanera-miguel-mas",
+      "las-marianas",
+    ],
+    why: "El pin abre en zoom 10 sobre Zonda–Ullum, pero el valle de Tulum es donde hay más bodega abierta: Graffigna en Desamparados, Segisa, Miguel Mas y Las Marianas en Pocito. Reservá: no es vinoteca de avenida.",
+  },
+  {
+    slug: "ruta-vino-zonda",
+    title: "Ruta del vino · Zonda y Ullum",
+    subtitle: "Cerro, parral y copa",
+    duration: "Una tarde",
+    km: "Ida y vuelta desde Capital, ~40–60 km",
+    placeSlugs: ["finca-sierras-azules", "bodega-apotema", "la-coqueta"],
+    why: "El mismo zoom del Maps: Sierras Azules para almorzar, Apotema para visita con reserva, La Coqueta para merendar después. Confirmá el día: Zonda cierra sin aviso.",
+  },
+  {
+    slug: "ruta-vino-este",
+    title: "Ruta del vino · el este",
+    subtitle: "Caucete y 25 de Mayo",
+    duration: "Un día",
+    km: "Hacia Caucete y Villa Santa Rosa",
+    placeSlugs: ["bodegas-callia", "entre-vinedos", "vinoteca-la-bodeguita"],
+    why: "Callia es la bodega grande de Caucete. Entre Viñedos es finca de 25 de Mayo. La Bodeguita es vinoteca de pueblo. El Tulum también es este, no solo Pocito.",
+  },
 ];
 
 export function getPlace(slug: string) {

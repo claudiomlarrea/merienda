@@ -12,6 +12,7 @@ export const kindLabels: Record<PlaceKind, string> = {
   pizzeria: "Pizzería",
   empanadas: "Empanadas",
   vinoteca: "Vinoteca",
+  bodega: "Bodega",
   heladeria: "Heladería",
   herboristeria: "Herboristería",
 };
@@ -46,7 +47,14 @@ const MERENDA_KINDS: PlaceKind[] = [
   "heladeria",
   "herboristeria",
 ];
-const COMER_KINDS: PlaceKind[] = ["restaurante", "comedor", "pizzeria", "empanadas", "vinoteca"];
+const COMER_KINDS: PlaceKind[] = [
+  "restaurante",
+  "comedor",
+  "pizzeria",
+  "empanadas",
+  "vinoteca",
+  "bodega",
+];
 
 export function matchesMoment(place: Place, moment: string) {
   if (!moment) return true;

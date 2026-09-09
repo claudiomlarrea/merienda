@@ -7,7 +7,7 @@ import { places } from "@/lib/places";
 
 export default function HomePage() {
   const paraComer = places.filter((place) =>
-    ["restaurante", "comedor", "pizzeria", "empanadas", "vinoteca"].includes(place.kind)
+    ["restaurante", "comedor", "pizzeria", "empanadas", "vinoteca", "bodega"].includes(place.kind)
   ).length;
   const departmentsCovered = new Set(places.map((place) => place.department)).size;
 
