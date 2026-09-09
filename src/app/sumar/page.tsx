@@ -71,8 +71,7 @@ export default function SumarPage() {
     <div className="mx-auto w-full max-w-2xl px-4 py-6 sm:py-10">
       <h1 className="font-heading text-3xl sm:text-4xl">Sumar un local</h1>
       <p className="mt-3 leading-7 text-muted-foreground">
-        ¿Viste una confitería en Zonda, un café en Ullum o un @ que no está acá? Cargalo aunque
-        falte la calle. Las fichas incompletas también entran: así se arma la guía.
+        ¿Viste un local que no está? Cargalo: nombre, departamento y tipo alcanzan.
       </p>
 
       {error ? (
@@ -145,7 +144,7 @@ export default function SumarPage() {
           Publicar en la guía
         </Button>
         <p className="text-xs text-muted-foreground">
-          Por ahora se guarda en este navegador (prototipo). No borra las fichas del catálogo.
+          Queda guardado en este teléfono. No reemplaza las fichas que ya están.
         </p>
       </form>
     </div>

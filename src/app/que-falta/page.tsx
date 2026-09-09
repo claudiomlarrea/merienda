@@ -21,9 +21,8 @@ export default function QueFaltaPage() {
     <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
       <h1 className="font-heading text-3xl sm:text-4xl">Qué falta en la guía</h1>
       <p className="mt-4 text-lg leading-8 text-muted-foreground">
-        Los mapas listan mal los departamentos. Las redes listan de a uno. Esta guía junta las dos
-        cosas y todavía le faltan locales: Angaco, 9 de Julio, Chimbas y 25 de Mayo se recorren, no
-        se “googlean” desde Libertador.
+        Los mapas no muestran todo. Acá se ve en qué departamentos hay pocas fichas, para ir a
+        buscar o para sumar un local que ya conocés.
       </p>
 
       <section className="mt-10 space-y-6">
@@ -86,10 +85,8 @@ export default function QueFaltaPage() {
       <section className="mt-12">
         <h2 className="font-heading text-2xl">Cocinas que faltan</h2>
         <p className="mt-2 text-muted-foreground">
-          El Maps de Libertador oeste tira pizzas, parrilla y helado. En Angaco y 9 de Julio casi
-          no hay restó con ficha: OSM encuentra cadenas o el aeropuerto. Comida china en Capital
-          también sigue corta. Si conocés la panadería de Villa El Salvador o un mostrador en Las
-          Chacritas, es exactamente el tipo de local que hay que sumar.
+          En algunos departamentos hay pocas pizzerías, parrillas o restoranes cargados. Si
+          conocés uno, sumalo.
         </p>
       </section>
 

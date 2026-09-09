@@ -30,7 +30,7 @@ export default function DepartamentosPage() {
                 <h2 className="font-heading mt-1 text-2xl">{department.name}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{department.pitch}</p>
                 <p className="mt-4 text-sm">
-                  {count === 0 ? "Todavía sin fichas — sumá una" : `${count} ${count === 1 ? "lugar" : "lugares"}`}
+                  {count === 0 ? "Sin lugares" : `${count} ${count === 1 ? "lugar" : "lugares"}`}
                 </p>
               </Link>
             </li>

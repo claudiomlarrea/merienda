@@ -18,11 +18,11 @@ import { cn } from "@/lib/utils";
 const emptyCopy: Record<string, { title: string; body: string }> = {
   search: {
     title: "Nada con esa búsqueda",
-    body: "Probá el departamento (Jáchal, 25 de Mayo) o “pachatas”, “bodegas”, “vinoteca”. Si sigue sin aparecer, falta: sumalo.",
+    body: "Probá otro nombre, un departamento o un tipo: pachatas, cafés, bodegas, helado.",
   },
   filter: {
-    title: "No hay fichas con ese filtro",
-    body: "Zonda y Ullum todavía tienen pocos locales indexados. Si conocés uno, la guía se arma así.",
+    title: "No hay lugares con ese filtro",
+    body: "Probá sacando un filtro o cambiando de departamento.",
   },
 };
 
@@ -95,7 +95,7 @@ export function PlacesBrowser({
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Busca al escribir. Ignora tildes. Entiende “pachatas”, “cafés”, “vinoteca”, “bodegas” y “herboristería”.
+          La búsqueda ignora tildes.
         </p>
         <div className="flex flex-wrap gap-2">
           {[

@@ -11,8 +11,8 @@ export default function RutasPage() {
     <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-10">
       <h1 className="font-heading text-3xl sm:text-4xl">Rutas de merienda y de vino</h1>
       <p className="mt-3 max-w-2xl text-muted-foreground">
-        No es un tour operador: son tardes para merendar, almorzar o ir a una bodega. Confirmá
-        horarios y visitas: en departamento se cierra sin aviso y las bodegas piden reserva.
+        Tardes para merendar, almorzar o visitar una bodega. Confirmá horarios: en pueblo cambian
+        y las bodegas piden reserva.
       </p>
       <div className="mt-10 space-y-14">
         {meriendaRoutes.map((route) => {

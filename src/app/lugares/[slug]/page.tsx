@@ -15,9 +15,9 @@ export default function PlacePage({ params }: { params: Promise<{ slug: string }
   if (!place) {
     return (
       <div className="mx-auto flex w-full max-w-xl flex-col items-start gap-4 px-4 py-20">
-        <h1 className="font-heading text-3xl">Ese local no está… todavía</h1>
+        <h1 className="font-heading text-3xl">No encontramos ese local</h1>
         <p className="text-muted-foreground">
-          Puede ser un @ que todavía no cargamos. Si lo conocés, sumalo.
+          Puede haberse movido el enlace. Buscá de nuevo o sumá el local si lo conocés.
         </p>
         <Button render={<Link href="/sumar" />}>Sumar un local</Button>
       </div>

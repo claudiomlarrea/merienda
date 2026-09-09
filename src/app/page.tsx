@@ -35,8 +35,7 @@ export default function HomePage() {
           <p className="mt-4 max-w-2xl text-base leading-7 text-pretty sm:mt-5 sm:text-lg sm:leading-8">
             Capital, Rivadavia, Zonda, Ullum y el resto de los departamentos, en una sola guía.
             Albardón, Angaco, Calingasta, Jáchal, Iglesia, Caucete, Valle Fértil, Sarmiento, 25 de
-            Mayo: restoranes, pizzerías, pachatas, heladerías y herboristerías que el Maps de
-            Capital no encuentra. La idea es sumar, no elegir un barrio.
+            Mayo: restoranes, pizzerías, pachatas, heladerías y herboristerías.
           </p>
           <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
             <Button render={<a href="#explorar" />} size="lg" className="min-h-12 w-full sm:w-auto">
@@ -74,12 +73,7 @@ export default function HomePage() {
       >
         <h2 className="font-heading text-2xl sm:text-3xl">Buscá dónde merendar o comer</h2>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
-          Filtrá por merendar o comer, por departamento (los 19) o por cocina. Si Angaco o 9 de
-          Julio están cortos,{" "}
-          <Link href="/que-falta" className="underline underline-offset-4">
-            mirá qué falta
-          </Link>
-          .
+          Filtrá por merendar o comer, por departamento o por cocina.
         </p>
         <div className="mt-6 sm:mt-8">
           <Suspense fallback={<p className="text-muted-foreground">Cargando la guía…</p>}>
@@ -95,10 +89,8 @@ export default function HomePage() {
             Un mapa para merendar y comer en toda la provincia.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 opacity-90">
-            En Capital hay cafés de especialidad, confiterías clásicas y restos de
-            circunvalación. En Villa Krause alguien te pasa un @. En Ullum hay un maxikiosco
-            que sirve café. Esta guía junta directorios, redes y lo que se ve recorriendo:
-            cada local suma.
+            Cafés, restoranes, pachatas, heladerías y bodegas de los 19 departamentos. Confirmá
+            horarios antes de ir: en pueblo cambian sin aviso.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button render={<Link href="/departamentos/zonda" />} variant="secondary" size="lg" className="min-h-12 w-full sm:w-auto">
