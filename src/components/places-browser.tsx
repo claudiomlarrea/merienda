@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 const emptyCopy: Record<string, { title: string; body: string }> = {
   search: {
     title: "Nada con esa búsqueda",
-    body: "Probá “cafecito”, “almuerzo”, “merienda” o el departamento. Si sigue sin aparecer, es un hueco: sumalo o mirá cómo se busca.",
+    body: "Probá “empanadas”, “pizza”, “vino” o el departamento. Si sigue sin aparecer, es un hueco: sumalo o mirá cómo se busca.",
   },
   filter: {
     title: "No hay fichas con ese filtro",
@@ -85,7 +85,7 @@ export function PlacesBrowser({
             id="buscar"
             value={q}
             onValueChange={(value: string) => setQ(value)}
-            placeholder="Cafecito, almuerzo, Zonda, facturas…"
+            placeholder="Empanadas, pizza, vino, cafecito…"
             className="h-11 bg-card text-base"
           />
           <Button type="submit" size="lg" className="sm:h-11">
@@ -93,10 +93,10 @@ export function PlacesBrowser({
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Busca al escribir. Ignora tildes. Entiende “cafecito”, “merienda”, “almuerzo” y “facturas”.
+          Busca al escribir. Ignora tildes. Entiende “cafecito”, “empanadas”, “pizza” y “vino”.
         </p>
         <div className="flex flex-wrap gap-2">
-          {["cafecito", "merienda", "almuerzo", "facturas"].map((term) => (
+          {["empanadas", "pizza", "vino", "cafecito"].map((term) => (
             <button
               key={term}
               type="button"

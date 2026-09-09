@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { places } from "@/lib/places";
 
 export default function HomePage() {
-  const paraComer = places.filter((place) => place.kind === "restaurante" || place.kind === "comedor").length;
+  const paraComer = places.filter((place) =>
+    ["restaurante", "comedor", "pizzeria", "empanadas", "vinoteca"].includes(place.kind)
+  ).length;
   const departmentsCovered = new Set(places.map((place) => place.department)).size;
 
   return (
@@ -17,8 +19,8 @@ export default function HomePage() {
         </h1>
         <p className="mt-5 max-w-2xl text-lg leading-8 text-pretty text-muted-foreground">
           Capital, Rivadavia, Zonda, Ullum y el resto de los departamentos, en una sola guía.
-          Cafés, confiterías y restos: los que ya querés y los que solo circulan por redes. La
-          idea es sumar, no elegir un barrio.
+          Cafés, confiterías, restos, empanadas, pizzas y vinotecas: los que ya querés y los que
+          solo circulan por redes. La idea es sumar, no elegir un barrio.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button render={<a href="#explorar" />} size="lg">
@@ -54,7 +56,7 @@ export default function HomePage() {
       >
         <h2 className="font-heading text-3xl">Buscá dónde merendar o comer</h2>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          Filtrá por merendar o comer, por departamento, o escribí cafecito, almuerzo, facturas.
+          Filtrá por merendar o comer, por tipo (pizza, empanadas, vino) o escribí cafecito.
           Si un departamento está corto,{" "}
           <Link href="/huecos" className="underline underline-offset-4">
             hay que profundizar

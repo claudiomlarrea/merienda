@@ -27,6 +27,16 @@ const SYNONYMS: Record<string, string[]> = {
   milanesa: ["milanesa", "bodegon", "almuerzo"],
   asado: ["asado", "parrilla", "restaurante"],
   parrilla: ["parrilla", "asado", "restaurante"],
+  pizza: ["pizza", "pizzeria"],
+  pizzas: ["pizza", "pizzeria"],
+  pizzeria: ["pizza", "pizzeria"],
+  empanada: ["empanada", "empanadas"],
+  empanadas: ["empanada", "empanadas"],
+  pasteleria: ["pasteleria", "torta", "factura"],
+  vino: ["vino", "vinoteca", "bodega"],
+  vinos: ["vino", "vinoteca", "bodega"],
+  vinoteca: ["vino", "vinoteca"],
+  artesanal: ["artesanal", "casero"],
 };
 
 function expandToken(token: string) {

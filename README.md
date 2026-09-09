@@ -1,16 +1,16 @@
 # Merienda
 
-Guía sanjuanina de confiterías, cafés y lugares para comer en toda la provincia. Junta lo que aparece en el mapa con lo que circula por redes o un recorrido por Zonda, Ullum, Calingasta, Jáchal, Iglesia y Caucete — y también los cafés y restos de Capital.
+Guía sanjuanina de confiterías, cafés y lugares para comer en toda la provincia. Junta lo que aparece en el mapa con lo que circula por redes o un recorrido por Zonda, Ullum, Calingasta, Jáchal, Iglesia y Caucete — y también los cafés, restos, pizzerías, empanadas y vinotecas de Capital.
 
 Hay locales que la gente del departamento conoce y casi no aparecen en los buscadores. Esta guía los pone junto a los que ya tienen ficha, sin destacar a uno solo.
 
 ## Qué incluye esta versión
 
 - Fichas de Capital, Rivadavia, Rawson, Zonda, Ullum, Calingasta, Jáchal, Iglesia, Caucete, Chimbas, Albardón, Pocito, Santa Lucía, Valle Fértil y Sarmiento.
-- Filtro **Merendar / Comer**: cafés y confiterías por un lado, restos y comedores por el otro.
+- Filtro **Merendar / Comer** y tipos: café, confitería, pastelería, restaurante, pizzería, empanadas, vinoteca.
 - En cada ficha, **Cómo llegar** abre Google Maps con destino al local (usa tu ubicación actual si el teléfono la permite).
 - Página **Huecos**: cómo seguir buscando (recorrido, redes por ubicación, grupos del pueblo) y departamentos con pocas fichas.
-- El buscador ignora tildes y entiende “cafecito”, “merienda”, “almuerzo”, “facturas”.
+- El buscador ignora tildes y entiende “cafecito”, “empanadas”, “pizza”, “vino”.
 - Rutas (Zonda–Ullum, Libertador, Desamparados, Barreal, Jáchal).
 - Formulario para **sumar un local** aunque falte la calle. En este prototipo se guarda en el navegador.
 

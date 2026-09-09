@@ -26,6 +26,9 @@ export const PLACE_KINDS = [
   "pasteleria",
   "comedor",
   "restaurante",
+  "pizzeria",
+  "empanadas",
+  "vinoteca",
 ] as const;
 
 export const MOMENTS = ["merendar", "comer"] as const;
