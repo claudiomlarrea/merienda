@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 const emptyCopy: Record<string, { title: string; body: string }> = {
   search: {
     title: "Nada con esa búsqueda",
-    body: "Probá “helado”, “sushi”, “parrilla”, “vegano” o “sin tacc”. Si sigue sin aparecer, es un hueco: sumalo.",
+    body: "Probá el departamento (Jáchal, 25 de Mayo) o “herboristería”. Si sigue sin aparecer, es un hueco: sumalo.",
   },
   filter: {
     title: "No hay fichas con ese filtro",
@@ -95,10 +95,10 @@ export function PlacesBrowser({
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Busca al escribir. Ignora tildes. Entiende “helado”, “sushi”, “parrilla”, “vegano” y “sin tacc”.
+          Busca al escribir. Ignora tildes. Entiende “helado”, “parrilla”, “vegano”, “sin tacc” y “herboristería”.
         </p>
         <div className="flex flex-wrap gap-2">
-          {["helado", "sushi", "parrilla", "vegano", "sin tacc", "pizza"].map((term) => (
+          {["helado", "sushi", "parrilla", "vegano", "sin tacc", "herboristería"].map((term) => (
             <button
               key={term}
               type="button"

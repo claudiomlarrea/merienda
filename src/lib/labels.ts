@@ -13,6 +13,7 @@ export const kindLabels: Record<PlaceKind, string> = {
   empanadas: "Empanadas",
   vinoteca: "Vinoteca",
   heladeria: "Heladería",
+  herboristeria: "Herboristería",
 };
 
 export const momentLabels: Record<Moment, string> = {
@@ -42,6 +43,7 @@ const MERENDA_KINDS: PlaceKind[] = [
   "panaderia",
   "pasteleria",
   "heladeria",
+  "herboristeria",
 ];
 const COMER_KINDS: PlaceKind[] = ["restaurante", "comedor", "pizzeria", "empanadas", "vinoteca"];
 
@@ -87,12 +89,16 @@ export const departmentShort: Record<DepartmentId, string> = {
   zonda: "Zonda",
   ullum: "Ullum",
   albardon: "Albardón",
+  angaco: "Angaco",
   calingasta: "Calingasta",
   jachal: "Jáchal",
   iglesia: "Iglesia",
   caucete: "Caucete",
   "valle-fertil": "Valle Fértil",
   sarmiento: "Sarmiento",
+  "san-martin": "San Martín",
+  "9-de-julio": "9 de Julio",
+  "25-de-mayo": "25 de Mayo",
 };
 
 export function profileUrl(handle: string) {

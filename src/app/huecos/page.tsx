@@ -22,8 +22,8 @@ export default function HuecosPage() {
       <h1 className="font-heading text-4xl">Cómo encontrar los cafecitos que faltan</h1>
       <p className="mt-4 text-lg leading-8 text-muted-foreground">
         Los mapas listan mal los departamentos. Las redes listan de a uno. Esta guía junta las dos
-        cosas y todavía tiene huecos: Chimbas, Santa Lucía, Pocito, Albardón y Sarmiento se
-        recorren, no se “googlean”.
+        cosas y todavía tiene huecos: Angaco, 9 de Julio, Chimbas y 25 de Mayo se recorren, no se
+        “googlean” desde Libertador.
       </p>
 
       <section className="mt-10 space-y-6">
@@ -86,9 +86,10 @@ export default function HuecosPage() {
       <section className="mt-12">
         <h2 className="font-heading text-2xl">Cocinas con huecos</h2>
         <p className="mt-2 text-muted-foreground">
-          El Maps de Libertador oeste tira pizzas, parrilla y helado. Comida china casi no: en este
-          zoom no hay un restó chino clásico con ficha clara. Si conocés un chaw fan o un wok de
-          barrio, es exactamente el tipo de local que hay que sumar.
+          El Maps de Libertador oeste tira pizzas, parrilla y helado. En Angaco y 9 de Julio casi
+          no hay restó con ficha: OSM encuentra cadenas o el aeropuerto. Comida china en Capital
+          también sigue corta. Si conocés la panadería de Villa El Salvador o un mostrador en Las
+          Chacritas, es exactamente el tipo de local que hay que sumar.
         </p>
       </section>
 

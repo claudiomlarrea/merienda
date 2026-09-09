@@ -50,6 +50,11 @@ const SYNONYMS: Record<string, string[]> = {
   tacc: ["sin-tacc", "celiaco", "gluten"],
   celiaco: ["sin-tacc", "tacc", "gluten"],
   gluten: ["sin-tacc", "tacc"],
+  herboristeria: ["herboristeria", "dietetica", "yuyo", "infusion"],
+  herboristerias: ["herboristeria", "dietetica", "yuyo"],
+  dietetica: ["herboristeria", "dietetica", "naturista"],
+  yuyos: ["herboristeria", "yuyo", "infusion"],
+  infusion: ["herboristeria", "te", "casa de te"],
 };
 
 function expandToken(token: string) {

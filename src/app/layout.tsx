@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: "%s · Merienda",
   },
   description:
-    "Guía sanjuanina de confiterías, cafés y lugares para comer en toda la provincia: Capital, Zonda, Ullum, Jáchal, Calingasta y más. Incluye locales que circulan por redes o de boca en boca.",
+    "Guía sanjuanina de merienda y comida en los 19 departamentos: restoranes, pizzerías, heladerías y herboristerías que el mapa de Capital no encuentra.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

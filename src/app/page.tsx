@@ -15,13 +15,13 @@ export default function HomePage() {
       <section className="mx-auto w-full max-w-6xl px-4 pt-10 pb-6 sm:pt-14">
         <p className="stamp inline-block rounded-full px-3 py-1 text-[11px]">San Juan · Argentina</p>
         <h1 className="font-heading mt-5 max-w-3xl text-4xl leading-[1.1] sm:text-6xl">
-          Dónde merendar y comer en todo San Juan.
+          Dónde merendar y comer en los 19 departamentos.
         </h1>
         <p className="mt-5 max-w-2xl text-lg leading-8 text-pretty text-muted-foreground">
           Capital, Rivadavia, Zonda, Ullum y el resto de los departamentos, en una sola guía.
-          Cafés, confiterías, restos, pizzas, heladerías, sushi, parrilla y opciones veganas o sin
-          TACC: los que ya querés y los que solo circulan por redes. La idea es sumar, no elegir un
-          barrio.
+          Albardón, Angaco, Calingasta, Jáchal, Iglesia, Caucete, Valle Fértil, Sarmiento, 25 de
+          Mayo: restoranes, pizzerías, heladerías y herboristerías que el Maps de Capital no
+          encuentra. La idea es sumar, no elegir un barrio.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button render={<a href="#explorar" />} size="lg">
@@ -57,8 +57,8 @@ export default function HomePage() {
       >
         <h2 className="font-heading text-3xl">Buscá dónde merendar o comer</h2>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          Filtrá por merendar o comer, por tipo (heladería, pizza) o por cocina (vegano, sushi,
-          parrilla, sin TACC). Si un departamento o una cocina está corta,{" "}
+          Filtrá por merendar o comer, por departamento (los 19) o por cocina. Si Angaco o 9 de
+          Julio están cortos,{" "}
           <Link href="/huecos" className="underline underline-offset-4">
             hay que profundizar
           </Link>

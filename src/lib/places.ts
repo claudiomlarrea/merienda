@@ -1,4 +1,5 @@
 import type { MeriendaRoute, Place } from "@/lib/types";
+import { provinciaPlaces } from "@/lib/places-provincia";
 
 const img = {
   haiti:
@@ -75,7 +76,7 @@ const img = {
     "https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=1400&q=80",
 };
 
-export const places: Place[] = [
+const corePlaces: Place[] = [
   {
     slug: "cafe-haiti",
     name: "Café Haití",
@@ -2135,6 +2136,8 @@ export const places: Place[] = [
   },
 ];
 
+export const places: Place[] = [...corePlaces, ...provinciaPlaces];
+
 export const meriendaRoutes: MeriendaRoute[] = [
   {
     slug: "zonda-ullum",
@@ -2175,8 +2178,8 @@ export const meriendaRoutes: MeriendaRoute[] = [
     subtitle: "Jáchal tiene café de especialidad",
     duration: "Un día",
     km: "~150 km",
-    placeSlugs: ["edesia-jachal", "marias-jachal"],
-    why: "Edesia alcanza para justificar el viaje. Marías es el plan B de pueblo.",
+    placeSlugs: ["edesia-jachal", "buffet-punto-encuentro-jachal", "taberna-de-juan"],
+    why: "Café de especialidad, confitería de pueblo y bodegón de la plaza. Jáchal merienda y come sin volver a Capital.",
   },
   {
     slug: "desamparados",
@@ -2192,6 +2195,15 @@ export const meriendaRoutes: MeriendaRoute[] = [
       "las-invernadas",
     ],
     why: "El mismo pin de Maps: café de especialidad, Cereza para merendar o almorzar, y un clásico de circunvalación para comer.",
+  },
+  {
+    slug: "valle-fertil-ruta",
+    title: "Valle Fértil, almuerzo de pueblo",
+    subtitle: "El este no es solo Ischigualasto",
+    duration: "Un día",
+    km: "~250 km ida",
+    placeSlugs: ["inna-cafe", "el-astiqueno", "heladeria-valle-de-la-luna"],
+    why: "Café, parrilla y helado artesanal en San Agustín. Confirmá el día: Valle Fértil no cierra como la peatonal.",
   },
 ];
 

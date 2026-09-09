@@ -8,12 +8,16 @@ export const DEPARTMENTS = [
   "zonda",
   "ullum",
   "albardon",
+  "angaco",
   "calingasta",
   "jachal",
   "iglesia",
   "caucete",
   "valle-fertil",
   "sarmiento",
+  "san-martin",
+  "9-de-julio",
+  "25-de-mayo",
 ] as const;
 
 export type DepartmentId = (typeof DEPARTMENTS)[number];
@@ -30,6 +34,7 @@ export const PLACE_KINDS = [
   "empanadas",
   "vinoteca",
   "heladeria",
+  "herboristeria",
 ] as const;
 
 export const MOMENTS = ["merendar", "comer"] as const;

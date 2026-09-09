@@ -61,6 +61,13 @@ export const departments: Department[] = [
     pitch: "Poco mapeado para meriendas. Si encontraste un local, esta guía lo necesita.",
   },
   {
+    id: "angaco",
+    name: "Angaco",
+    region: "Este del Tulum",
+    pitch:
+      "Villa El Salvador y el este agrícola. Maps casi no lista restoranes: si hay una panadería de plaza, esta guía la necesita.",
+  },
+  {
     id: "calingasta",
     name: "Calingasta",
     region: "Alta montaña",
@@ -96,6 +103,27 @@ export const departments: Department[] = [
     region: "Sur · Ruta 40",
     pitch:
       "Media Agua y la Ruta 40: cafés de pueblo, pastelerías y paradas de merienda que no entran en las listas de Capital.",
+  },
+  {
+    id: "san-martin",
+    name: "San Martín",
+    region: "Este del Tulum",
+    pitch:
+      "Villa San Martín, San Isidro y Dominguito: restó de pueblo y ruta del vino, a 18 km de Capital y fuera del zoom de Libertador.",
+  },
+  {
+    id: "9-de-julio",
+    name: "9 de Julio",
+    region: "Este · aeropuerto",
+    pitch:
+      "Las Chacritas y el aeropuerto. Casi no hay ficha de café de pueblo; lo que Maps encuentra suele ser parada de ruta.",
+  },
+  {
+    id: "25-de-mayo",
+    name: "25 de Mayo",
+    region: "Sureste",
+    pitch:
+      "Villa Santa Rosa, Encon y Pie de Palo: finca, parador de ruta y el restaurante que el pueblo ya tiene. Capital no lo busca.",
   },
 ];
 
