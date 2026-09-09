@@ -16,13 +16,23 @@ const fraunces = Fraunces({
   subsets: ["latin"],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "https://temporary-rushing-quartz-v0mwnln.vercel.app");
+
+const title = "Merienda — Dónde merendar y comer en San Juan";
+const description =
+  "Guía sanjuanina de merienda y comida en los 19 departamentos: restoranes, pizzerías, heladerías, pachatas y herboristerías.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "Merienda — Dónde merendar y comer en San Juan",
+    default: title,
     template: "%s · Merienda",
   },
-  description:
-    "Guía sanjuanina de merienda y comida en los 19 departamentos: restoranes, pizzerías, heladerías, pachatas y herboristerías que el mapa de Capital no encuentra.",
+  description,
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -31,6 +41,27 @@ export const metadata: Metadata = {
   },
   icons: {
     apple: "/fondo-agua-verde.jpg",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    siteName: "Merienda",
+    title,
+    description,
+    images: [
+      {
+        url: "/og-merienda.jpg",
+        width: 1280,
+        height: 720,
+        alt: "Río y álamos verdes de San Juan",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: ["/og-merienda.jpg"],
   },
 };
 
