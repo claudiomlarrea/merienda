@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/lugares", label: "Lugares" },
+  { href: "/#explorar", label: "Lugares" },
   { href: "/departamentos", label: "Departamentos" },
   { href: "/huecos", label: "Huecos" },
   { href: "/rutas", label: "Rutas" },
@@ -59,7 +59,7 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <Button
-            render={<Link href="/lugares?visibilidad=instagram" />}
+            render={<Link href="/?visibilidad=instagram#explorar" />}
             size="sm"
             variant="ghost"
             className="hidden sm:inline-flex"

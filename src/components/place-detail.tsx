@@ -21,7 +21,7 @@ export function PlaceDetail({ place }: { place: Place }) {
   return (
     <article className="mx-auto w-full max-w-5xl px-4 py-8">
       <p className="text-sm text-muted-foreground">
-        <Link href="/lugares" className="hover:underline">
+        <Link href="/#explorar" className="hover:underline">
           Lugares
         </Link>
         {" · "}

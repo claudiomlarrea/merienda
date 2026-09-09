@@ -15,7 +15,7 @@ export function SiteFooter() {
           <Link href="/" className="hover:underline">
             Inicio
           </Link>
-          <Link href="/lugares" className="hover:underline">
+          <Link href="/#explorar" className="hover:underline">
             Lugares
           </Link>
           <Link href="/huecos" className="hover:underline">

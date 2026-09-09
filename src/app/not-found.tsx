@@ -9,7 +9,7 @@ export default function NotFound() {
         Puede ser un departamento sin ficha o un local que todavía no cargamos. El hueco se tapa sumándolo.
       </p>
       <div className="flex gap-2">
-        <Button render={<Link href="/lugares" />}>Ver lugares</Button>
+        <Button render={<Link href="/#explorar" />}>Ver lugares</Button>
         <Button render={<Link href="/sumar" />} variant="outline">
           Sumar un local
         </Button>

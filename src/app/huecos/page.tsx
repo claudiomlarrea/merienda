@@ -101,7 +101,7 @@ export default function HuecosPage() {
         <Button render={<Link href="/sumar" />} size="lg">
           Sumar un cafecito que viste
         </Button>
-        <Button render={<Link href="/lugares?q=cafecito" />} size="lg" variant="outline">
+        <Button render={<Link href="/?q=cafecito#explorar" />} size="lg" variant="outline">
           Buscar “cafecito”
         </Button>
       </div>
