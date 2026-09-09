@@ -13,8 +13,8 @@ export default function LugaresPage() {
       <p className="mt-3 max-w-2xl text-muted-foreground">
         Filtrá por merendar o comer, o escribí “cafecito”, “almuerzo”, “facturas”. La búsqueda
         ignora tildes. Si un departamento está vacío, no es que no haya nada:{" "}
-        <Link href="/huecos" className="underline underline-offset-4">
-          hay que profundizar
+        <Link href="/que-falta" className="underline underline-offset-4">
+          mirá qué falta
         </Link>
         .
       </p>

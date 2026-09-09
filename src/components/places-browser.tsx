@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 const emptyCopy: Record<string, { title: string; body: string }> = {
   search: {
     title: "Nada con esa búsqueda",
-    body: "Probá el departamento (Jáchal, 25 de Mayo) o “pachatas”, “bodegas”, “vinoteca”. Si sigue sin aparecer, es un hueco: sumalo.",
+    body: "Probá el departamento (Jáchal, 25 de Mayo) o “pachatas”, “bodegas”, “vinoteca”. Si sigue sin aparecer, falta: sumalo.",
   },
   filter: {
     title: "No hay fichas con ese filtro",

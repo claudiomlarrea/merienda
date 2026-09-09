@@ -11,7 +11,11 @@ const tabs = [
     href: "/lugares",
     label: "Lugares",
     icon: UtensilsCrossedIcon,
-    match: (path: string) => path.startsWith("/lugares") || path.startsWith("/huecos") || path.startsWith("/rutas"),
+    match: (path: string) =>
+      path.startsWith("/lugares") ||
+      path.startsWith("/huecos") ||
+      path.startsWith("/que-falta") ||
+      path.startsWith("/rutas"),
   },
   {
     href: "/departamentos",

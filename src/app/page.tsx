@@ -76,8 +76,8 @@ export default function HomePage() {
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
           Filtrá por merendar o comer, por departamento (los 19) o por cocina. Si Angaco o 9 de
           Julio están cortos,{" "}
-          <Link href="/huecos" className="underline underline-offset-4">
-            hay que profundizar
+          <Link href="/que-falta" className="underline underline-offset-4">
+            mirá qué falta
           </Link>
           .
         </p>

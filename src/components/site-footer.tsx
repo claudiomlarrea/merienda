@@ -19,8 +19,8 @@ export function SiteFooter() {
           <Link href="/lugares" className="hover:underline">
             Lugares
           </Link>
-          <Link href="/huecos" className="hover:underline">
-            Huecos
+          <Link href="/que-falta" className="hover:underline">
+            Qué falta
           </Link>
           <Link href="/sumar" className="hover:underline">
             Sumar un local

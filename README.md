@@ -23,7 +23,7 @@ Recomendación: subila a **Vercel**. Conectá el repo, `npm run build` corre sol
 - Atajos de búsqueda: pachatas, cafés, vinoteca, bodegas, helado.
 - **Rutas de vino** (Tulum–Pocito, Zonda–Ullum, el este) además de las de merienda.
 - En cada ficha, **Cómo llegar** abre Google Maps con destino al local.
-- Página **Huecos**: Angaco y 9 de Julio siguen cortos; se recorren, no se googlean desde Libertador.
+- Página **Qué falta**: Angaco y 9 de Julio siguen cortos; se recorren, no se googlean desde Libertador.
 - El buscador ignora tildes y entiende “pachatas”, “cafés”, “helado”, “parrilla”, “herboristería”, “sin tacc”.
 - Rutas (Zonda–Ullum, Libertador, Desamparados, Barreal, Jáchal, Valle Fértil).
 - Formulario para **sumar un local** aunque falte la calle. En este prototipo se guarda en el navegador.
