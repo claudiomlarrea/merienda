@@ -26,7 +26,7 @@ export const departments: Department[] = [
     name: "Rawson",
     region: "Gran San Juan",
     pitch:
-      "Villa Krause tiene cafeterías que se mueven por Instagram, no por Google. Cinco Uno es el ejemplo.",
+      "Villa Krause tiene cafeterías que se mueven por Instagram tanto como por la vereda.",
   },
   {
     id: "chimbas",

@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PlaceCard } from "@/components/place-card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { departments } from "@/lib/departments";
 import { kindLabels, visibilityLabels } from "@/lib/labels";
@@ -90,7 +92,7 @@ export function PlacesBrowser({
           id="buscar"
           value={q}
           onChange={(event) => setQ(event.target.value)}
-          placeholder="Café Haití, medialunas, Villa Krause…"
+          placeholder="Medialunas, Villa Krause, Zonda…"
           className="h-11 bg-card text-base"
         />
       </form>
@@ -229,6 +231,11 @@ function EmptyState({
           ? "Marcá una confitería con Guardar para armar tu propia ruta de merienda."
           : copy.body}
       </p>
+      {!savedEmpty ? (
+        <Button render={<Link href="/sumar" />} className="mt-6">
+          Sumar un local
+        </Button>
+      ) : null}
     </div>
   );
 }

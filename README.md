@@ -2,7 +2,7 @@
 
 Guía sanjuanina de confiterías, cafés y casas de té en toda la provincia. Junta lo que aparece en Google con lo que circula por Instagram, Facebook o un recorrido por Zonda, Ullum, Calingasta, Jáchal, Iglesia y Caucete — y también los cafés de Capital.
 
-Café Haití es el ejemplo del hueco: un local que la gente del departamento conoce y el resto de la provincia no, porque no está (bien) en los buscadores.
+Hay locales que la gente del departamento conoce y casi no aparecen en los buscadores. Esta guía los pone junto a los que ya tienen ficha, sin destacar a uno solo.
 
 ## Qué incluye esta versión
 

@@ -72,7 +72,7 @@ export default function SumarPage() {
       <h1 className="font-heading text-4xl">Sumar un local</h1>
       <p className="mt-3 leading-7 text-muted-foreground">
         ¿Viste una confitería en Zonda, un café en Ullum o un @ que no está acá? Cargalo aunque
-        falte la calle. Las fichas incompletas son el punto: Café Haití también empezó así.
+        falte la calle. Las fichas incompletas también entran: así se arma la guía.
       </p>
 
       {error ? (
@@ -83,7 +83,7 @@ export default function SumarPage() {
 
       <form onSubmit={onSubmit} className="mt-8 grid gap-5">
         <Field label="Nombre del local" htmlFor="name">
-          <Input id="name" name="name" required placeholder="Café Haití" className="h-11 bg-card" />
+          <Input id="name" name="name" required placeholder="Nombre del local" className="h-11 bg-card" />
         </Field>
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Departamento" htmlFor="department">

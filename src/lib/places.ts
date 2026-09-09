@@ -610,7 +610,7 @@ export const meriendaRoutes: MeriendaRoute[] = [
       "cafe-haiti",
       "el-ensueno-ullum",
     ],
-    why: "Cerro, dique y locales que Capital no tiene en el radar. Empezá por La Coqueta (ficha clara) y dejá Café Haití o L&M para el tramo de pueblo.",
+    why: "Cerro, dique y merienda de valle. Combiná una casa de té con ficha clara y las paradas de pueblo que se confirman el mismo día.",
   },
   {
     slug: "libertador",

@@ -5,9 +5,14 @@ import { places } from "@/lib/places";
 
 export default function HomePage() {
   const featured = places.filter((place) =>
-    ["cafe-haiti", "cinco-uno", "la-coqueta", "edesia-jachal", "punto-encuentro-lm", "don-elizardo"].includes(
-      place.slug
-    )
+    [
+      "bendito-cafe",
+      "entre-montanas",
+      "la-coqueta",
+      "cinco-uno",
+      "edesia-jachal",
+      "don-elizardo",
+    ].includes(place.slug)
   );
   const instagramOnly = places.filter((place) => place.visibility === "instagram").length;
   const departmentsCovered = new Set(places.map((place) => place.department)).size;
@@ -17,12 +22,12 @@ export default function HomePage() {
       <section className="mx-auto w-full max-w-6xl px-4 pt-10 pb-6 sm:pt-16">
         <p className="stamp inline-block rounded-full px-3 py-1 text-[11px]">San Juan · Argentina</p>
         <h1 className="font-heading mt-5 max-w-3xl text-4xl leading-[1.1] sm:text-6xl">
-          Confiterías y cafés de toda San Juan.
+          Confiterías y cafés de todo San Juan.
         </h1>
         <p className="mt-5 max-w-2xl text-lg leading-8 text-pretty text-muted-foreground">
           Capital, Rivadavia, Zonda, Ullum y el resto de los departamentos, en una sola guía.
-          Están los cafés que ya querés y también los que solo circulan por Instagram —Café Haití
-          es un ejemplo—. La idea es sumar, no elegir un barrio.
+          Están los cafés que ya querés y también los que solo circulan por Instagram. La idea es
+          sumar, no elegir un barrio.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button render={<Link href="/lugares" />} size="lg">
@@ -77,7 +82,7 @@ export default function HomePage() {
             Un mapa para merendar en toda la provincia.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 opacity-90">
-            En Capital están Clapton, Bonito, Bendito y tantas otras. En Villa Krause alguien te
+            En Capital hay cafés de especialidad y confiterías clásicas. En Villa Krause alguien te
             pasa un @. En Ullum hay un maxikiosco que sirve café. Esta guía junta directorios,
             redes y lo que se ve recorriendo: cada local suma.
           </p>
@@ -101,8 +106,8 @@ export default function HomePage() {
           <p className="text-xs tracking-wide text-muted-foreground uppercase">01</p>
           <h3 className="font-heading mt-2 text-2xl">Instagram y Facebook</h3>
           <p className="mt-3 leading-7 text-muted-foreground">
-            Stories, @ de barrio, grupos de Facebook. Ahí viven Cinco Uno, las pastelerías de
-            encargue y Café Haití.
+            Stories, @ de barrio, grupos de Facebook. Ahí aparecen cafeterías de departamento,
+            pastelerías de encargue y locales que todavía no tienen ficha en Google.
           </p>
         </article>
         <article className="rounded-3xl bg-card p-6 ring-1 ring-foreground/8">
@@ -116,7 +121,7 @@ export default function HomePage() {
           <p className="text-xs tracking-wide text-muted-foreground uppercase">03</p>
           <h3 className="font-heading mt-2 text-2xl">Una sola lista</h3>
           <p className="mt-3 leading-7 text-muted-foreground">
-            Mismo formato para La Coqueta y para el local sin dirección confirmada. Lo incompleto también se publica.
+            Mismo formato para un salón conocido y para el local sin dirección confirmada. Lo incompleto también se publica.
           </p>
         </article>
       </section>
