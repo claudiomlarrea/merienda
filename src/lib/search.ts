@@ -37,6 +37,19 @@ const SYNONYMS: Record<string, string[]> = {
   vinos: ["vino", "vinoteca", "bodega"],
   vinoteca: ["vino", "vinoteca"],
   artesanal: ["artesanal", "casero"],
+  helado: ["helado", "heladeria"],
+  helados: ["helado", "heladeria"],
+  heladeria: ["helado", "heladeria"],
+  vegano: ["vegano", "vegetariano"],
+  vegana: ["vegano", "vegetariano"],
+  vegetariano: ["vegetariano", "vegano"],
+  vegetariana: ["vegetariano", "vegano"],
+  sushi: ["sushi", "rolls"],
+  chino: ["chino", "china", "chaw", "chow"],
+  china: ["chino", "china", "chaw"],
+  tacc: ["sin-tacc", "celiaco", "gluten"],
+  celiaco: ["sin-tacc", "tacc", "gluten"],
+  gluten: ["sin-tacc", "tacc"],
 };
 
 function expandToken(token: string) {

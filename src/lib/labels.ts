@@ -1,4 +1,5 @@
-import type { DepartmentId, Moment, Place, PlaceKind, Source, Visibility } from "@/lib/types";
+import type { CocinaTag, DepartmentId, Moment, Place, PlaceKind, Source, Visibility } from "@/lib/types";
+import { COCINA_TAGS } from "@/lib/types";
 
 export const kindLabels: Record<PlaceKind, string> = {
   confiteria: "Confitería",
@@ -11,6 +12,7 @@ export const kindLabels: Record<PlaceKind, string> = {
   pizzeria: "Pizzería",
   empanadas: "Empanadas",
   vinoteca: "Vinoteca",
+  heladeria: "Heladería",
 };
 
 export const momentLabels: Record<Moment, string> = {
@@ -18,7 +20,29 @@ export const momentLabels: Record<Moment, string> = {
   comer: "Comer",
 };
 
-const MERENDA_KINDS: PlaceKind[] = ["confiteria", "cafe", "casa-de-te", "panaderia", "pasteleria"];
+export const cocinaLabels: Record<CocinaTag, string> = {
+  vegetariano: "Vegetariano",
+  vegano: "Vegano",
+  chino: "Comida china",
+  sushi: "Sushi",
+  parrilla: "Parrilla",
+  "sin-tacc": "Sin TACC",
+};
+
+export function placeCocinaTags(place: Place): CocinaTag[] {
+  return place.tags.filter((tag): tag is CocinaTag =>
+    (COCINA_TAGS as readonly string[]).includes(tag)
+  );
+}
+
+const MERENDA_KINDS: PlaceKind[] = [
+  "confiteria",
+  "cafe",
+  "casa-de-te",
+  "panaderia",
+  "pasteleria",
+  "heladeria",
+];
 const COMER_KINDS: PlaceKind[] = ["restaurante", "comedor", "pizzeria", "empanadas", "vinoteca"];
 
 export function matchesMoment(place: Place, moment: string) {

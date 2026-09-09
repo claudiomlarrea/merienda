@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VisibilityBadge } from "@/components/visibility-badge";
 import { getDepartment } from "@/lib/departments";
-import { departmentShort, kindLabels, profileUrl, sourceLabels } from "@/lib/labels";
+import { departmentShort, kindLabels, placeCocinaTags, cocinaLabels, profileUrl, sourceLabels } from "@/lib/labels";
 import type { Place } from "@/lib/types";
 
 export function PlaceDetail({ place }: { place: Place }) {
@@ -43,6 +43,11 @@ export function PlaceDetail({ place }: { place: Place }) {
           <div className="flex flex-wrap gap-2">
             <VisibilityBadge value={place.visibility} />
             <Badge variant="outline">{kindLabels[place.kind]}</Badge>
+            {placeCocinaTags(place).map((tag) => (
+              <Badge key={tag} variant="secondary">
+                {cocinaLabels[tag]}
+              </Badge>
+            ))}
             {place.community ? <Badge variant="secondary">Sumado por alguien de la guía</Badge> : null}
             {!place.addressConfirmed ? (
               <Badge variant="secondary">Dirección a confirmar</Badge>

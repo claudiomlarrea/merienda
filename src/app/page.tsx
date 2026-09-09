@@ -19,8 +19,9 @@ export default function HomePage() {
         </h1>
         <p className="mt-5 max-w-2xl text-lg leading-8 text-pretty text-muted-foreground">
           Capital, Rivadavia, Zonda, Ullum y el resto de los departamentos, en una sola guía.
-          Cafés, confiterías, restos, empanadas, pizzas y vinotecas: los que ya querés y los que
-          solo circulan por redes. La idea es sumar, no elegir un barrio.
+          Cafés, confiterías, restos, pizzas, heladerías, sushi, parrilla y opciones veganas o sin
+          TACC: los que ya querés y los que solo circulan por redes. La idea es sumar, no elegir un
+          barrio.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button render={<a href="#explorar" />} size="lg">
@@ -56,8 +57,8 @@ export default function HomePage() {
       >
         <h2 className="font-heading text-3xl">Buscá dónde merendar o comer</h2>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          Filtrá por merendar o comer, por tipo (pizza, empanadas, vino) o escribí cafecito.
-          Si un departamento está corto,{" "}
+          Filtrá por merendar o comer, por tipo (heladería, pizza) o por cocina (vegano, sushi,
+          parrilla, sin TACC). Si un departamento o una cocina está corta,{" "}
           <Link href="/huecos" className="underline underline-offset-4">
             hay que profundizar
           </Link>

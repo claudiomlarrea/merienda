@@ -84,6 +84,15 @@ export default function HuecosPage() {
       </section>
 
       <section className="mt-12">
+        <h2 className="font-heading text-2xl">Cocinas con huecos</h2>
+        <p className="mt-2 text-muted-foreground">
+          El Maps de Libertador oeste tira pizzas, parrilla y helado. Comida china casi no: en este
+          zoom no hay un restó chino clásico con ficha clara. Si conocés un chaw fan o un wok de
+          barrio, es exactamente el tipo de local que hay que sumar.
+        </p>
+      </section>
+
+      <section className="mt-12">
         <h2 className="font-heading text-2xl">Cobertura ahora</h2>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {coverage.map((item) => (

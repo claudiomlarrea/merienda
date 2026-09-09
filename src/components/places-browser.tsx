@@ -7,10 +7,10 @@ import { PlaceCard } from "@/components/place-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { departments } from "@/lib/departments";
-import { kindLabels, matchesMoment, momentLabels, normalizeVisibilityFilter, visibilityLabels } from "@/lib/labels";
+import { cocinaLabels, kindLabels, matchesMoment, momentLabels, normalizeVisibilityFilter, visibilityLabels } from "@/lib/labels";
 import { places as catalog } from "@/lib/places";
 import { matchesPlaceQuery } from "@/lib/search";
-import { MOMENTS, PLACE_KINDS, VISIBILITY, type Place } from "@/lib/types";
+import { COCINA_TAGS, MOMENTS, PLACE_KINDS, VISIBILITY, type Place } from "@/lib/types";
 import { useCommunity } from "@/context/community-places";
 import { useSaved } from "@/context/saved-places";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 const emptyCopy: Record<string, { title: string; body: string }> = {
   search: {
     title: "Nada con esa búsqueda",
-    body: "Probá “empanadas”, “pizza”, “vino” o el departamento. Si sigue sin aparecer, es un hueco: sumalo o mirá cómo se busca.",
+    body: "Probá “helado”, “sushi”, “parrilla”, “vegano” o “sin tacc”. Si sigue sin aparecer, es un hueco: sumalo.",
   },
   filter: {
     title: "No hay fichas con ese filtro",
@@ -41,6 +41,7 @@ export function PlacesBrowser({
   const kind = searchParams.get("tipo") ?? "";
   const moment = searchParams.get("momento") ?? "";
   const visibility = normalizeVisibilityFilter(searchParams.get("visibilidad") ?? "");
+  const cocina = searchParams.get("cocina") ?? "";
   const onlySaved = searchParams.get("guardados") === "1";
   const qParam = searchParams.get("q") ?? "";
   const [q, setQ] = useState(qParam);
@@ -62,11 +63,12 @@ export function PlacesBrowser({
       if (kind && place.kind !== kind) return false;
       if (moment && !matchesMoment(place, moment)) return false;
       if (visibility && place.visibility !== visibility) return false;
+      if (cocina && !place.tags.includes(cocina)) return false;
       if (onlySaved && !saved.includes(place.slug)) return false;
       if (!query) return true;
       return matchesPlaceQuery(place, query);
     });
-  }, [all, department, kind, moment, visibility, onlySaved, saved, q]);
+  }, [all, department, kind, moment, visibility, cocina, onlySaved, saved, q]);
 
   return (
     <div className="space-y-6">
@@ -85,7 +87,7 @@ export function PlacesBrowser({
             id="buscar"
             value={q}
             onValueChange={(value: string) => setQ(value)}
-            placeholder="Empanadas, pizza, vino, cafecito…"
+            placeholder="Helado, sushi, parrilla, vegano, sin tacc…"
             className="h-11 bg-card text-base"
           />
           <Button type="submit" size="lg" className="sm:h-11">
@@ -93,10 +95,10 @@ export function PlacesBrowser({
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Busca al escribir. Ignora tildes. Entiende “cafecito”, “empanadas”, “pizza” y “vino”.
+          Busca al escribir. Ignora tildes. Entiende “helado”, “sushi”, “parrilla”, “vegano” y “sin tacc”.
         </p>
         <div className="flex flex-wrap gap-2">
-          {["empanadas", "pizza", "vino", "cafecito"].map((term) => (
+          {["helado", "sushi", "parrilla", "vegano", "sin tacc", "pizza"].map((term) => (
             <button
               key={term}
               type="button"
@@ -152,6 +154,21 @@ export function PlacesBrowser({
           {PLACE_KINDS.map((item) => (
             <Chip key={item} active={kind === item} onClick={() => setParam("tipo", item)}>
               {kindLabels[item]}
+            </Chip>
+          ))}
+        </FilterRow>
+
+        <FilterRow label="Cocina">
+          <Chip active={!cocina} onClick={() => setParam("cocina", "")}>
+            Todas
+          </Chip>
+          {COCINA_TAGS.map((item) => (
+            <Chip
+              key={item}
+              active={cocina === item}
+              onClick={() => setParam("cocina", item)}
+            >
+              {cocinaLabels[item]}
             </Chip>
           ))}
         </FilterRow>

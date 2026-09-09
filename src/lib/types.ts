@@ -29,6 +29,7 @@ export const PLACE_KINDS = [
   "pizzeria",
   "empanadas",
   "vinoteca",
+  "heladeria",
 ] as const;
 
 export const MOMENTS = ["merendar", "comer"] as const;
@@ -41,6 +42,16 @@ export type Visibility = (typeof VISIBILITY)[number];
 
 export const SOURCES = ["redes", "recorrido", "google", "boca-en-boca"] as const;
 export type Source = (typeof SOURCES)[number];
+
+export const COCINA_TAGS = [
+  "vegetariano",
+  "vegano",
+  "chino",
+  "sushi",
+  "parrilla",
+  "sin-tacc",
+] as const;
+export type CocinaTag = (typeof COCINA_TAGS)[number];
 
 export type Place = {
   slug: string;
