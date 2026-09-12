@@ -8,13 +8,16 @@ La app está pensada para **abrirse en el celular**: botones grandes, barra de a
 
 ## Dónde hostearla
 
-Esta guía es una app Next.js. No usa base de datos: las fichas van en el código y lo que alguien suma se guarda en ese celular.
+Esta guía es una app **Next.js**. No es Streamlit. En Streamlit Cloud, si nadie entra, aparece el muñequito dormido y la página no abre. Acá no: se publica en **Vercel** (como merienda-gamma) y queda despierta.
 
-- **Vercel** (a veces lo escriben Vergel): el lugar natural. Next.js sale de la misma empresa; HTTPS, dominio y preview en cada push. Es lo que conviene para que la gente la abra desde el teléfono.
+No usa base de datos: las fichas van en el código y lo que alguien suma se guarda en ese celular.
+
+- **Vercel** (a veces lo escriben Vergel): el lugar. Next.js sale de la misma empresa; HTTPS, dominio y preview en cada push. Es lo que conviene para que la gente la abra desde el teléfono.
+- **No Streamlit** ni Streamlit Community Cloud.
 - **Firebase App Hosting**: sirve si ya estás metido en Google/Firebase. El Hosting clásico de Firebase es para sitios estáticos; esta app no es un HTML suelto.
 - **Neon**: no es hosting de la app. Es Postgres. Acá no hace falta una base.
 
-Recomendación: subila a **Vercel**. Conectá el repo, `npm run build` corre solo, y el celular entra por HTTPS.
+Recomendación: subí el repo a **GitHub** y en Vercel, en el proyecto **merienda-gamma**, conectá ese repo. `npm run build` corre solo. No armes un app de Streamlit.
 
 ## Qué incluye esta versión
 
