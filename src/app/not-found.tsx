@@ -8,8 +8,11 @@ export default function NotFound() {
         <p className="text-muted-foreground">
           Volvé al inicio o buscá un lugar.
         </p>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button render={<Link href="/#explorar" />}>Ver lugares</Button>
+        <Button render={<Link href="/sumar" />} variant="outline">
+          Sumar un local
+        </Button>
         <Button render={<Link href="/contacto" />} variant="outline">
           Contacto
         </Button>
