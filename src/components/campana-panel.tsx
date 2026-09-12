@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { CheckIcon, CopyIcon, SendIcon } from "lucide-react";
+import { ArrowLeftIcon, CheckIcon, CopyIcon, SendIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { departmentShort, kindLabels } from "@/lib/labels";
 import {
   MY_WHATSAPP_KEY,
   OUTREACH_SENT_KEY,
+  myWhatsAppAppUrl,
   myWhatsAppUrl,
   selfOutreachMessage,
   toWhatsAppDigits,
@@ -70,6 +71,9 @@ export function CampanaPanel() {
   const [filter, setFilter] = useState<Filter>("pendientes");
   const [copied, setCopied] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState("");
+  const [notice, setNotice] = useState<{ name: string; appUrl: string | null } | null>(
+    null
+  );
 
   const digits = toWhatsAppDigits(savedPhone);
   const ready = Boolean(digits);
@@ -126,24 +130,65 @@ export function CampanaPanel() {
     window.setTimeout(() => setCopied((current) => (current === place.slug ? null : current)), 1800);
   }
 
-  function sendToMe(place: Place) {
+  async function sendToMe(place: Place) {
     if (!savedPhone) return;
-    const url = myWhatsAppUrl(savedPhone, selfOutreachMessage(place));
-    if (!url) return;
-    window.open(url, "_blank", "noopener,noreferrer");
+    const text = selfOutreachMessage(place);
+    const appUrl = myWhatsAppAppUrl(savedPhone, text);
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // El aviso de abajo igual deja copiar de nuevo.
+    }
     markSent(place.slug);
+    setNotice({ name: place.name, appUrl });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
-      <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Solo vos</p>
+      <Link
+        href="/"
+        className="inline-flex min-h-11 items-center gap-2 text-sm font-medium underline-offset-4 hover:underline"
+      >
+        <ArrowLeftIcon className="size-4" />
+        Volver a Merienda
+      </Link>
+      <p className="mt-5 text-xs font-medium tracking-wide text-muted-foreground uppercase">Solo vos</p>
       <h1 className="font-heading mt-1 text-3xl sm:text-4xl">Mandármelos por WhatsApp</h1>
       <p className="mt-3 text-base leading-7 text-muted-foreground">
-        Merienda no escribe a ningún restorán. Cada toque abre un chat con <strong>tu</strong>{" "}
-        número, con el mensaje listo (guía + ficha). Lo mandás y lo reenviás al local desde tu
-        cuenta. Si el fijo del local no tiene WhatsApp, no pasa nada: buscás el contacto por el
-        nombre.
+        Esta lista no se tiene que ir. Tocá Mandarme: se copia el texto y se abre la app de
+        WhatsApp. Si te aparece una página verde, no es Merienda — tocá <strong>Atrás</strong> y
+        volvés acá. Después reenvialo al local.
       </p>
+
+      {notice ? (
+        <div className="mt-6 rounded-2xl bg-primary px-4 py-4 text-sm leading-6 text-primary-foreground">
+          <p className="font-medium">Listo: {notice.name}</p>
+          <p className="mt-2 opacity-95">
+            El mensaje está copiado. Abrí WhatsApp en el teléfono o en la app de la Mac, pegá y
+            mandalo. Esta lista se queda acá. Si ya estás en una pantalla verde, tocá{" "}
+            <strong>Atrás</strong> (flecha arriba a la izquierda).
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              className="min-h-11"
+              onClick={() => setNotice(null)}
+            >
+              Seguir con el siguiente
+            </Button>
+            <Button render={<Link href="/" />} variant="secondary" className="min-h-11">
+              Ir al inicio
+            </Button>
+            {notice.appUrl ? (
+              <Button render={<a href={notice.appUrl} />} variant="outline" className="min-h-11">
+                Abrir la app
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
 
       <form
         onSubmit={savePhone}

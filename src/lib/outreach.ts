@@ -52,3 +52,10 @@ export function myWhatsAppUrl(myPhone: string, text: string) {
   if (!digits) return null;
   return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
+
+/** Abre la app de WhatsApp sin sacar de Merienda. */
+export function myWhatsAppAppUrl(myPhone: string, text: string) {
+  const digits = toWhatsAppDigits(myPhone);
+  if (!digits) return null;
+  return `whatsapp://send?phone=${digits}&text=${encodeURIComponent(text)}`;
+}
