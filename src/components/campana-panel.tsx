@@ -34,6 +34,7 @@ type BridgeSnapshot = {
   sending: boolean;
   current: number;
   total: number;
+  lastBeat: number;
   rows: SendRow[];
 };
 
@@ -45,6 +46,7 @@ const emptyBridge: BridgeSnapshot = {
   sending: false,
   current: 0,
   total: 0,
+  lastBeat: 0,
   rows: [],
 };
 
@@ -86,7 +88,7 @@ const phaseLabel: Record<SendRow["phase"], string> = {
   "al-local": "Saliendo al local",
   ok: "Enviado al local",
   "sin-whatsapp": "Ese número no tiene WhatsApp",
-  error: "Error",
+  error: "Se trabó, se sigue",
 };
 
 export function CampanaPanel() {
@@ -109,6 +111,7 @@ export function CampanaPanel() {
   const [phoneError, setPhoneError] = useState("");
   const [bridge, setBridge] = useState<BridgeSnapshot>(emptyBridge);
   const [busy, setBusy] = useState("");
+  const [now, setNow] = useState(() => Date.now());
 
   const digits = toWhatsAppDigits(savedPhone);
   const ready = Boolean(digits);
@@ -120,6 +123,29 @@ export function CampanaPanel() {
   );
   const withPhone = useMemo(() => catalog.filter((place) => place.phone), [catalog]);
   const pendingSlugs = withPhone.filter((place) => !sent[place.slug]).map((place) => place.slug);
+  const leftover =
+    !bridge.sending &&
+    bridge.rows.some(
+      (row) =>
+        row.phase === "pendiente" ||
+        row.phase === "a-mi" ||
+        row.phase === "al-local" ||
+        row.phase === "error"
+    );
+  const stuck = Boolean(
+    (bridge.sending && bridge.lastBeat > 0 && now - bridge.lastBeat > 18000) ||
+      bridge.rows.some((row) => row.phase === "a-mi" && !bridge.sending)
+  );
+  const resumeFromLocal = !bridge.sending && Object.keys(sent).length > 0 && pendingSlugs.length > 0;
+  const showContinuar = stuck || leftover || resumeFromLocal;
+  const continueSlugs = [
+    ...new Set([
+      ...pendingSlugs,
+      ...bridge.rows
+        .filter((row) => row.phase !== "ok" && row.phase !== "sin-whatsapp")
+        .map((row) => row.slug),
+    ]),
+  ];
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -135,6 +161,11 @@ export function CampanaPanel() {
 
   const pendientes = catalog.filter((place) => !sent[place.slug]).length;
   const mandados = catalog.length - pendientes;
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -208,18 +239,31 @@ export function CampanaPanel() {
     }
   }
 
-  async function enviarTodos() {
-    if (!savedPhone || !pendingSlugs.length) return;
-    const ok = window.confirm(
-      `Se van a mandar ${pendingSlugs.length} mensajes desde TU WhatsApp. Cada uno dice Claudio Larrea y lleva la ficha de esa empresa. Primero te llega a vos; después sale al local. ¿Seguimos?`
-    );
-    if (!ok) return;
+  async function enviarTodos(force = false) {
+    if (!savedPhone) return;
+    const slugs = force ? continueSlugs : pendingSlugs;
+    if (!slugs.length) return;
+    if (!force) {
+      const ok = window.confirm(
+        `Se van a mandar ${slugs.length} mensajes desde TU WhatsApp. Cada local recibe el texto de Claudio Larrea con su ficha. ¿Seguimos?`
+      );
+      if (!ok) return;
+    }
     setBusy("enviar");
     try {
+      if (force) {
+        await fetch("/api/campana/parar", { method: "POST" });
+        await new Promise((resolve) => setTimeout(resolve, 400));
+      }
       const response = await fetch("/api/campana/enviar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ myPhone: savedPhone, slugs: pendingSlugs }),
+        body: JSON.stringify({
+          myPhone: savedPhone,
+          slugs,
+          force,
+          alreadySent: Object.keys(sent),
+        }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -250,9 +294,9 @@ export function CampanaPanel() {
       <p className="mt-5 text-xs font-medium tracking-wide text-muted-foreground uppercase">Solo vos</p>
       <h1 className="font-heading mt-1 text-3xl sm:text-4xl">Enviar desde mi WhatsApp</h1>
       <p className="mt-3 text-base leading-7 text-muted-foreground">
-        Vinculás tu WhatsApp como un dispositivo. El sistema te manda el texto a tu número y,
-        enseguida, el <strong>mismo texto</strong> sale de tu cuenta al local. Cada empresa recibe
-        su ficha. Firmás <strong>Claudio Larrea</strong>. Esta página no se va a la pantalla verde.
+        Vinculás tu WhatsApp como un dispositivo. El texto de <strong>Claudio Larrea</strong> sale
+        de tu cuenta a cada local, con su ficha. Si se traba a mitad de camino, tocá Continuar: los
+        que ya salieron no se vuelven a mandar.
       </p>
 
       <form
@@ -328,20 +372,43 @@ export function CampanaPanel() {
       <section className="mt-8 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
         <h2 className="font-heading text-xl">3. Enviar a todos los locales</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          {pendingSlugs.length} con teléfono, pendientes. Cada uno: primero a tu chat, después al
-          local, con una pausa para que WhatsApp no te corte. Los que no tienen WhatsApp quedan
-          marcados y seguís con el siguiente.
+          {pendingSlugs.length} con teléfono, pendientes. El mensaje largo va al local. Si WhatsApp
+          se corta a mitad (pasó en Isalú), no recargues: tocá Continuar.
         </p>
+        {stuck ? (
+          <p className="mt-3 rounded-xl bg-primary px-4 py-3 text-sm text-primary-foreground">
+            Se trabó. WhatsApp a veces corta si mandás muchos seguidos a tu propio chat. Ahora el
+            texto largo va solo al local. Tocá Continuar: los que ya salieron no se tocan; Isalú y
+            el resto se reintentan.
+          </p>
+        ) : showContinuar ? (
+          <p className="mt-3 rounded-xl bg-muted px-4 py-3 text-sm">
+            Hay envíos hechos y otros pendientes. Continuar sigue desde el próximo, sin repetir La
+            Coqueta ni los que ya figuran enviados.
+          </p>
+        ) : null}
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button
-            type="button"
-            size="lg"
-            className="min-h-12"
-            disabled={!ready || bridge.status !== "connected" || bridge.sending || !pendingSlugs.length || busy === "enviar"}
-            onClick={() => void enviarTodos()}
-          >
-            Enviar a todos desde mi WhatsApp
-          </Button>
+          {showContinuar ? (
+            <Button
+              type="button"
+              size="lg"
+              className="min-h-12"
+              disabled={!ready || busy === "enviar" || (bridge.status !== "connected" && bridge.status !== "sending")}
+              onClick={() => void enviarTodos(true)}
+            >
+              Continuar desde acá
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              size="lg"
+              className="min-h-12"
+              disabled={!ready || bridge.status !== "connected" || !pendingSlugs.length || busy === "enviar"}
+              onClick={() => void enviarTodos(false)}
+            >
+              Enviar a todos desde mi WhatsApp
+            </Button>
+          )}
           {bridge.sending ? (
             <Button type="button" size="lg" variant="outline" className="min-h-12" onClick={() => void parar()}>
               Parar

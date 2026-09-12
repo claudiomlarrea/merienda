@@ -1,6 +1,6 @@
 import "server-only";
 
-import { mkdir } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import QRCode from "qrcode";
 import { places } from "@/lib/places";
@@ -13,8 +13,9 @@ import {
 } from "@/lib/outreach";
 
 const AUTH_DIR = path.join(process.cwd(), ".merienda-whatsapp");
-const SELF_GAP_MS = 2500;
-const VENUE_GAP_MS = 7000;
+const PROGRESS_FILE = path.join(AUTH_DIR, "campaign-progress.json");
+const SEND_TIMEOUT_MS = 16000;
+const VENUE_GAP_MS = 5500;
 
 export type SendRow = {
   slug: string;
@@ -31,6 +32,7 @@ export type BridgeSnapshot = {
   sending: boolean;
   current: number;
   total: number;
+  lastBeat: number;
   rows: SendRow[];
 };
 
@@ -49,6 +51,8 @@ type Bridge = {
   connecting: boolean;
   snapshot: BridgeSnapshot;
   stopRequested: boolean;
+  runId: number;
+  hydrated: boolean;
 };
 
 const globalForWa = globalThis as typeof globalThis & { meriendaWa?: Bridge };
@@ -58,6 +62,8 @@ function createBridge(): Bridge {
     sock: null,
     connecting: false,
     stopRequested: false,
+    runId: 0,
+    hydrated: false,
     snapshot: {
       status: "idle",
       qrDataUrl: null,
@@ -66,6 +72,7 @@ function createBridge(): Bridge {
       sending: false,
       current: 0,
       total: 0,
+      lastBeat: 0,
       rows: [],
     },
   };
@@ -76,17 +83,74 @@ function getBridge(): Bridge {
   return globalForWa.meriendaWa;
 }
 
-export function getSnapshot(): BridgeSnapshot {
-  return getBridge().snapshot;
+export async function getSnapshot(): Promise<BridgeSnapshot> {
+  await hydrateProgress();
+  const bridge = getBridge();
+  if (!bridge.sock && !bridge.connecting && bridge.snapshot.status === "idle") {
+    try {
+      await access(path.join(AUTH_DIR, "creds.json"));
+      void connectWhatsApp();
+    } catch {
+      // no hay sesión guardada
+    }
+  }
+  return bridge.snapshot;
+}
+
+async function hydrateProgress() {
+  const bridge = getBridge();
+  if (bridge.hydrated) return;
+  bridge.hydrated = true;
+  if (bridge.snapshot.rows.length) return;
+  try {
+    const raw = await readFile(PROGRESS_FILE, "utf8");
+    const rows = JSON.parse(raw) as SendRow[];
+    if (!Array.isArray(rows) || !rows.length) return;
+    const recovered = rows.map((row) =>
+      row.phase === "a-mi" || row.phase === "al-local"
+        ? { ...row, phase: "pendiente" as const, detail: "Se trabó acá. Continuar lo reintenta." }
+        : row
+    );
+    const done = recovered.filter((row) => row.phase === "ok" || row.phase === "sin-whatsapp").length;
+    patch({
+      rows: recovered,
+      current: done,
+      total: recovered.length,
+      sending: false,
+    });
+  } catch {
+    // primera vez, o el archivo no está
+  }
+}
+
+async function persistRows(rows: SendRow[]) {
+  try {
+    await mkdir(AUTH_DIR, { recursive: true });
+    await writeFile(PROGRESS_FILE, JSON.stringify(rows), "utf8");
+  } catch {
+    // no bloquear el envío
+  }
 }
 
 function patch(partial: Partial<BridgeSnapshot>) {
   const bridge = getBridge();
-  bridge.snapshot = { ...bridge.snapshot, ...partial };
+  bridge.snapshot = { ...bridge.snapshot, ...partial, lastBeat: Date.now() };
 }
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} tardó demasiado`)), ms);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 export async function connectWhatsApp() {
@@ -131,23 +195,28 @@ export async function connectWhatsApp() {
         const code = update.lastDisconnect?.error?.output?.statusCode;
         bridge.sock = null;
         bridge.connecting = false;
+        bridge.stopRequested = true;
+        bridge.runId += 1;
         if (code === DisconnectReason.loggedOut) {
           patch({
             status: "error",
             qrDataUrl: null,
             me: null,
+            sending: false,
             error: "WhatsApp cerró la sesión. Volvé a vincular el dispositivo.",
           });
           return;
         }
         if (code === DisconnectReason.restartRequired) {
+          patch({ sending: false, status: "qr" });
           void connectWhatsApp();
           return;
         }
         patch({
           status: "error",
           qrDataUrl: null,
-          error: "Se cortó WhatsApp. Tocá Vincular de nuevo.",
+          sending: false,
+          error: "Se cortó WhatsApp. Tocá Vincular y después Continuar.",
         });
       }
     }) as never);
@@ -166,6 +235,7 @@ export async function connectWhatsApp() {
 export async function disconnectWhatsApp() {
   const bridge = getBridge();
   bridge.stopRequested = true;
+  bridge.runId += 1;
   try {
     bridge.sock?.end();
   } catch {
@@ -184,14 +254,24 @@ export async function disconnectWhatsApp() {
 }
 
 export function stopSending() {
-  getBridge().stopRequested = true;
-  return getSnapshot();
+  const bridge = getBridge();
+  bridge.stopRequested = true;
+  bridge.runId += 1;
+  patch({
+    sending: false,
+    status: bridge.sock ? "connected" : bridge.snapshot.status,
+  });
+  return bridge.snapshot;
 }
 
 async function resolveVenueJid(sock: WaSock, phone: string): Promise<string | null> {
   for (const digits of venueWhatsAppCandidates(phone)) {
     try {
-      const result = await sock.onWhatsApp(whatsappJid(digits));
+      const result = await withTimeout(
+        sock.onWhatsApp(whatsappJid(digits)),
+        SEND_TIMEOUT_MS,
+        "consulta WhatsApp"
+      );
       const hit = result?.find((item) => item.exists);
       if (hit?.jid) return hit.jid;
     } catch {
@@ -202,52 +282,105 @@ async function resolveVenueJid(sock: WaSock, phone: string): Promise<string | nu
   return fallback ? whatsappJid(fallback) : null;
 }
 
-export async function sendCampaign(myPhone: string, slugs: string[]) {
+export async function sendCampaign(
+  myPhone: string,
+  slugs: string[],
+  options?: { force?: boolean; alreadySent?: string[] }
+) {
+  await hydrateProgress();
   const bridge = getBridge();
-  if (bridge.snapshot.status !== "connected" || !bridge.sock) {
+  if (!bridge.sock || (bridge.snapshot.status !== "connected" && bridge.snapshot.status !== "sending")) {
     throw new Error("Primero vinculá tu WhatsApp con el código QR.");
   }
   const myDigits = toWhatsAppDigits(myPhone);
   if (!myDigits) throw new Error("Tu número no es válido.");
-  if (bridge.snapshot.sending) throw new Error("Ya hay un envío en curso.");
+  if (bridge.snapshot.sending && !options?.force) {
+    throw new Error("Ya hay un envío en curso. Si se trabó, tocá Continuar.");
+  }
 
-  const targets = places.filter((place) => slugs.includes(place.slug) && place.phone);
-  if (!targets.length) throw new Error("No hay locales con teléfono en esta tanda.");
+  const skip = new Set(
+    bridge.snapshot.rows
+      .filter((row) => row.phase === "ok" || row.phase === "sin-whatsapp")
+      .map((row) => row.slug)
+  );
+  for (const slug of options?.alreadySent ?? []) skip.add(slug);
+
+  const requested = slugs.filter((slug) => !skip.has(slug));
+  const targets = places.filter((place) => requested.includes(place.slug) && place.phone);
+  if (!targets.length) throw new Error("No quedan locales con teléfono para enviar.");
 
   const sock = bridge.sock;
   const myJid = whatsappJid(myDigits);
+  const runId = ++bridge.runId;
   bridge.stopRequested = false;
-  const rows: SendRow[] = targets.map((place) => ({
-    slug: place.slug,
-    name: place.name,
-    phase: "pendiente",
-  }));
+  const previous = new Map(bridge.snapshot.rows.map((row) => [row.slug, row]));
+  const kept = [
+    ...bridge.snapshot.rows.filter((row) => skip.has(row.slug)),
+    ...[...skip]
+      .filter((slug) => !bridge.snapshot.rows.some((row) => row.slug === slug))
+      .map((slug) => {
+        const place = places.find((item) => item.slug === slug);
+        return {
+          slug,
+          name: place?.name ?? slug,
+          phase: "ok" as const,
+          detail: "Ya había salido.",
+        };
+      }),
+  ];
+  const rows: SendRow[] = [
+    ...kept,
+    ...targets.map((place) => ({
+      slug: place.slug,
+      name: place.name,
+      phase: "pendiente" as const,
+      detail: previous.get(place.slug)?.phase === "a-mi" ? "Reintento" : undefined,
+    })),
+  ];
+  const alreadyDone = kept.filter((row) => row.phase === "ok").length;
   patch({
     sending: true,
     status: "sending",
     rows,
-    current: 0,
-    total: targets.length,
+    current: alreadyDone,
+    total: alreadyDone + targets.length,
     error: null,
   });
+  void persistRows(rows);
 
   void (async () => {
+    const heartbeat = setInterval(() => {
+      if (bridge.runId !== runId) {
+        clearInterval(heartbeat);
+        return;
+      }
+      patch({});
+    }, 4000);
+
     try {
-      await sock.sendMessage(myJid, { text: campaignStartNote(targets.length) });
-      await sleep(SELF_GAP_MS);
+      if (!options?.force && alreadyDone === 0) {
+        try {
+          await withTimeout(
+            sock.sendMessage(myJid, { text: campaignStartNote(targets.length) }),
+            SEND_TIMEOUT_MS,
+            "aviso a tu chat"
+          );
+        } catch {
+          // Si tu chat está saturado, igual seguimos a los locales.
+        }
+      }
 
-      for (const [index, place] of targets.entries()) {
-        if (bridge.stopRequested) break;
+      for (const [offset, place] of targets.entries()) {
+        if (bridge.runId !== runId || bridge.stopRequested) break;
+        if (!bridge.sock) throw new Error("Se cortó WhatsApp.");
+        const index = rows.findIndex((row) => row.slug === place.slug);
         const message = outreachMessage(place);
-        rows[index] = { ...rows[index], phase: "a-mi" };
-        patch({ rows: [...rows], current: index + 1 });
-        await sock.sendMessage(myJid, { text: message });
-        await sleep(SELF_GAP_MS);
-        if (bridge.stopRequested) break;
+        rows[index] = { ...rows[index], phase: "al-local", detail: undefined };
+        patch({ rows: [...rows], current: alreadyDone + offset + 1 });
+        void persistRows(rows);
 
-        rows[index] = { ...rows[index], phase: "al-local" };
-        patch({ rows: [...rows] });
         const venueJid = await resolveVenueJid(sock, place.phone as string);
+        if (bridge.runId !== runId || bridge.stopRequested) break;
         if (!venueJid) {
           rows[index] = {
             ...rows[index],
@@ -255,32 +388,60 @@ export async function sendCampaign(myPhone: string, slugs: string[]) {
             detail: "Ese número no aparece en WhatsApp.",
           };
           patch({ rows: [...rows] });
+          void persistRows(rows);
           continue;
         }
         try {
-          await sock.sendMessage(venueJid, { text: message });
+          await withTimeout(
+            sock.sendMessage(venueJid, { text: message }),
+            SEND_TIMEOUT_MS,
+            place.name
+          );
           rows[index] = { ...rows[index], phase: "ok", detail: "Salió de tu WhatsApp." };
         } catch (error) {
           rows[index] = {
             ...rows[index],
-            phase: "sin-whatsapp",
-            detail: error instanceof Error ? error.message : "WhatsApp no aceptó el número.",
+            phase: "error",
+            detail: error instanceof Error ? error.message : "No salió. Se sigue con el próximo.",
           };
         }
         patch({ rows: [...rows] });
+        void persistRows(rows);
         await sleep(VENUE_GAP_MS);
       }
+
+      const sentNow = rows.filter((row) => row.phase === "ok").length;
+      const failed = rows.filter((row) => row.phase === "error").length;
+      if (bridge.runId === runId && !bridge.stopRequested) {
+        try {
+          await withTimeout(
+            sock.sendMessage(myJid, {
+              text: `Claudio Larrea — Merienda. Van ${sentNow} enviados${failed ? `, ${failed} no salieron` : ""}. Si se trabó alguno, tocá Continuar.`,
+            }),
+            SEND_TIMEOUT_MS,
+            "cierre a tu chat"
+          );
+        } catch {
+          // el envío a los locales ya se hizo
+        }
+      }
     } catch (error) {
-      patch({
-        error: error instanceof Error ? error.message : "Falló el envío.",
-        status: "connected",
-      });
+      if (bridge.runId === runId) {
+        patch({
+          error: error instanceof Error ? error.message : "Falló el envío.",
+          status: bridge.sock ? "connected" : "error",
+        });
+      }
     } finally {
-      patch({
-        sending: false,
-        status: bridge.sock ? "connected" : "error",
-        rows: [...rows],
-      });
+      clearInterval(heartbeat);
+      if (bridge.runId === runId) {
+        patch({
+          sending: false,
+          status: bridge.sock ? "connected" : bridge.snapshot.status,
+          rows: [...rows],
+        });
+        void persistRows(rows);
+      }
     }
   })();
 

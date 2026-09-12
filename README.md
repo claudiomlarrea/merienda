@@ -27,7 +27,7 @@ Recomendación: subila a **Vercel**. Conectá el repo, `npm run build` corre sol
 - El buscador ignora tildes y entiende “pachatas”, “cafés”, “helado”, “parrilla”, “herboristería”, “sin tacc”.
 - Rutas (Zonda–Ullum, Libertador, Desamparados, Barreal, Jáchal, Valle Fértil).
 - Formulario para **sumar un local** aunque falte la calle. En este prototipo se guarda en el navegador.
-- Pantalla **Enviar desde mi WhatsApp** (`/campana`): vinculás tu WhatsApp con un QR. Cada mensaje dice **Claudio Larrea**, te llega primero a vos y después sale de tu cuenta al local, con la ficha de esa empresa. No está en el menú público. Corre con `npm run dev` en tu computadora (en Vercel no se puede mantener la sesión de WhatsApp).
+- Pantalla **Enviar desde mi WhatsApp** (`/campana`): vinculás tu WhatsApp con un QR. Cada mensaje dice **Claudio Larrea** y sale de tu cuenta al local, con la ficha de esa empresa. Si el envío se traba a mitad, tocá **Continuar**: no se vuelven a mandar los que ya salieron. No está en el menú público. Corre con `npm run dev` en tu computadora (en Vercel no se puede mantener la sesión de WhatsApp).
 
 Los horarios de pueblo cambian. La guía lo dice en cada ficha: confirmá por redes antes de cruzar el dique.
 

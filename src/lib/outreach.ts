@@ -27,7 +27,7 @@ export function selfOutreachMessage(place: Place) {
 }
 
 export function campaignStartNote(count: number) {
-  return `Claudio Larrea — Merienda. Voy a enviar ${count} mensajes, cada uno con la ficha de ese local. Primero te llega a vos y después sale de tu WhatsApp al contacto de la empresa.`;
+  return `Claudio Larrea — Merienda. Empiezo a enviar ${count} mensajes desde mi WhatsApp, cada uno con la ficha de ese local.`;
 }
 
 /**
