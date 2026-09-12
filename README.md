@@ -27,6 +27,7 @@ Recomendación: subila a **Vercel**. Conectá el repo, `npm run build` corre sol
 - El buscador ignora tildes y entiende “pachatas”, “cafés”, “helado”, “parrilla”, “herboristería”, “sin tacc”.
 - Rutas (Zonda–Ullum, Libertador, Desamparados, Barreal, Jáchal, Valle Fértil).
 - Formulario para **sumar un local** aunque falte la calle. En este prototipo se guarda en el navegador.
+- Pantalla **Mandármelos por WhatsApp** (`/campana`): guardás tu número y cada mensaje se abre en *tu* chat, para reenviarlo al local. No escribe a ningún restorán. No está en el menú público.
 
 Los horarios de pueblo cambian. La guía lo dice en cada ficha: confirmá por redes antes de cruzar el dique.
 
