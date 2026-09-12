@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Outfit } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { BottomNav } from "@/components/bottom-nav";
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { UsoTracker } from "@/components/uso-tracker";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -87,6 +90,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </div>
           <BottomNav />
         </Providers>
+        <UsoTracker />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

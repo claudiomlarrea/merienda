@@ -42,3 +42,6 @@ next-env.d.ts
 
 # WhatsApp session (linked device)
 .merienda-whatsapp/
+
+# Contador de visitas (se arma solo)
+/data/uso.json

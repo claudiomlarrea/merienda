@@ -27,6 +27,7 @@ Recomendación: subila a **Vercel**. Conectá el repo, `npm run build` corre sol
 - El buscador ignora tildes y entiende “pachatas”, “cafés”, “helado”, “parrilla”, “herboristería”, “sin tacc”.
 - Rutas (Zonda–Ullum, Libertador, Desamparados, Barreal, Jáchal, Valle Fértil).
 - Formulario para **sumar un local** aunque falte la calle. En este prototipo se guarda en el navegador.
+- Contador de **visitas, visitantes y descargas** (agregar a la pantalla de inicio) en `/uso`, fuera del menú. En Vercel activá Web Analytics en el proyecto de merienda-gamma para que no se pierda al redeploy.
 - Pantalla de campaña (`/campana` y `/campana/sms`): WhatsApp ya se mandó a 51 locales y no se repite. El resto con teléfono (24) sale por **SMS** con el texto de Claudio Larrea. En la Mac no se abre Mensajes (eso es iMessage y no deja enviar). Escaneá el código con el Samsung, mandá, y tocá Ya lo mandé. Los 91 sin teléfono no se pueden SMS. Opcional: HttpSMS (el chip del Samsung) o Twilio.
 
 Los horarios de pueblo cambian. La guía lo dice en cada ficha: confirmá por redes antes de cruzar el dique.
