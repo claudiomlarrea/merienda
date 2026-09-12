@@ -60,7 +60,7 @@ export function CampanaPanel() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("pendientes");
   const [copied, setCopied] = useState<string | null>(null);
-  const [qr, setQr] = useState<{ qrDataUrl: string; url: string } | null>(null);
+  const [qr, setQr] = useState<{ qrDataUrl: string; textQrDataUrl: string; url: string; text: string } | null>(null);
   const [qrError, setQrError] = useState("");
 
   const catalog = useMemo(
@@ -126,13 +126,24 @@ export function CampanaPanel() {
     async function loadQr() {
       try {
         const response = await fetch(`/api/campana/qr-chat?slug=${encodeURIComponent(current.slug)}`);
-        const data = (await response.json()) as { qrDataUrl?: string; url?: string; error?: string };
+        const data = (await response.json()) as {
+          qrDataUrl?: string;
+          textQrDataUrl?: string;
+          url?: string;
+          text?: string;
+          error?: string;
+        };
         if (cancelled) return;
-        if (!response.ok || !data.qrDataUrl || !data.url) {
+        if (!response.ok || !data.qrDataUrl || !data.textQrDataUrl || !data.text) {
           setQrError(data.error ?? "No se pudo armar el código.");
           return;
         }
-        setQr({ qrDataUrl: data.qrDataUrl, url: data.url });
+        setQr({
+          qrDataUrl: data.qrDataUrl,
+          textQrDataUrl: data.textQrDataUrl,
+          url: data.url ?? "",
+          text: data.text,
+        });
       } catch {
         if (!cancelled) setQrError("No se pudo armar el código.");
       }
@@ -189,25 +200,37 @@ export function CampanaPanel() {
               {kindLabels[current.kind]} · {current.locality}
             </p>
             <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6">
-              <li>Agarrá el celular. Abrí la cámara, no WhatsApp.</li>
-              <li>Apuntá al cuadrado. Se abre el chat con el texto ya escrito.</li>
-              <li>Tocá Enviar. Después, acá, Ya lo mandé.</li>
+              <li>Si el chat ya se abrió y está vacío, no hace falta volver a abrir WhatsApp.</li>
+              <li>Con la cámara, escaneá el segundo cuadrado (el del texto).</li>
+              <li>Tocá Copiar. En el chat, tocá el recuadro de escribir, pegá, Enviar.</li>
             </ol>
             {qr ? (
-              <div className="mt-5 rounded-xl bg-background p-4 ring-1 ring-foreground/10">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={qr.qrDataUrl}
-                  alt={`Código para mandar el WhatsApp a ${current.name}`}
-                  className="mx-auto size-64 bg-white p-2"
-                />
-                <p className="mt-3 text-center text-sm text-muted-foreground">
-                  Cámara del teléfono. No es el QR de WhatsApp Web.
-                </p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-xl bg-background p-3 ring-1 ring-foreground/10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={qr.qrDataUrl}
+                    alt={`Abrir el chat de ${current.name}`}
+                    className="mx-auto size-52 bg-white p-2"
+                  />
+                  <p className="mt-2 text-center text-sm font-medium">1. Abrir el chat</p>
+                </div>
+                <div className="rounded-xl bg-background p-3 ring-1 ring-foreground/10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={qr.textQrDataUrl}
+                    alt={`Texto para pegar en el chat de ${current.name}`}
+                    className="mx-auto size-52 bg-white p-2"
+                  />
+                  <p className="mt-2 text-center text-sm font-medium">2. Copiar el texto</p>
+                </div>
               </div>
             ) : (
               <p className="mt-4 text-sm text-muted-foreground">{qrError || "Armando el código…"}</p>
             )}
+            <p className="mt-4 text-sm leading-6">
+              WhatsApp a veces abre el contacto y no pega el mensaje. Pegalo vos. El texto es este:
+            </p>
             <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-xl bg-background p-4 text-sm leading-6 ring-1 ring-foreground/10">
               {outreachMessage(current)}
             </pre>
@@ -226,8 +249,8 @@ export function CampanaPanel() {
               </Button>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
-              Si WhatsApp muestra el reloj de 24 horas, todavía no deja chats nuevos. Cuando llegue a
-              0, escaneá de nuevo.
+              Si abajo dice que no podés iniciar chats nuevos, igual podés escribir en este chat
+              porque ya existía: pegá el texto y enviá.
             </p>
           </>
         ) : (

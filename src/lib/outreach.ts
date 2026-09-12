@@ -68,10 +68,19 @@ export function whatsappJid(digits: string) {
   return `${digits}@s.whatsapp.net`;
 }
 
+/** Mensaje para el enlace de WhatsApp: más corto para que no se corte. */
+export function outreachLinkMessage(place: Place) {
+  return [
+    "Hola, soy Claudio Larrea. Armamos Merienda: https://merienda-gamma.vercel.app",
+    `Los incluimos acá: ${placeShareUrl(place.slug)}`,
+    "Si están conformes, ¿pueden pasarla por redes o por el estado? No hay costo.",
+  ].join("\n");
+}
+
 export function venueChatUrl(phone: string, text: string) {
   const digits = toWhatsAppDigits(phone) ?? venueWhatsAppCandidates(phone)[0];
   if (!digits) return null;
-  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+  return `https://api.whatsapp.com/send?phone=${digits}&text=${encodeURIComponent(text)}`;
 }
 
 export function venueWhatsAppAppUrl(phone: string, text: string) {

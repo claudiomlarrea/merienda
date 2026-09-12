@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import QRCode from "qrcode";
-import { outreachMessage, venueChatUrl } from "@/lib/outreach";
+import { outreachLinkMessage, outreachMessage, venueChatUrl } from "@/lib/outreach";
 import { getPlace } from "@/lib/places";
 
 export const runtime = "nodejs";
@@ -12,10 +12,14 @@ export async function GET(request: Request) {
   if (!place?.phone) {
     return NextResponse.json({ error: "No hay teléfono." }, { status: 404 });
   }
-  const url = venueChatUrl(place.phone, outreachMessage(place));
+  const text = outreachMessage(place);
+  const url = venueChatUrl(place.phone, outreachLinkMessage(place));
   if (!url) {
     return NextResponse.json({ error: "No se pudo armar el chat." }, { status: 400 });
   }
-  const qrDataUrl = await QRCode.toDataURL(url, { margin: 1, width: 320 });
-  return NextResponse.json({ qrDataUrl, url, name: place.name });
+  const [qrDataUrl, textQrDataUrl] = await Promise.all([
+    QRCode.toDataURL(url, { margin: 1, width: 320, errorCorrectionLevel: "M" }),
+    QRCode.toDataURL(text, { margin: 1, width: 320, errorCorrectionLevel: "M" }),
+  ]);
+  return NextResponse.json({ qrDataUrl, textQrDataUrl, url, text, name: place.name });
 }
