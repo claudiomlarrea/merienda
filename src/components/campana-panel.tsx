@@ -2,19 +2,14 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { ArrowLeftIcon, CheckIcon, CopyIcon, MessageCircleIcon } from "lucide-react";
+import { ArrowLeftIcon, CheckIcon, CopyIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { departmentShort, kindLabels } from "@/lib/labels";
-import {
-  OUTREACH_SENT_KEY,
-  outreachMessage,
-  venueChatUrl,
-  venueWhatsAppAppUrl,
-} from "@/lib/outreach";
-import { getPlace, places } from "@/lib/places";
+import { OUTREACH_SENT_KEY, outreachMessage } from "@/lib/outreach";
+import { places } from "@/lib/places";
 import type { Place } from "@/lib/types";
 
 type Filter = "pendientes" | "mandados" | "todos";
@@ -23,9 +18,6 @@ type SendRow = {
   slug: string;
   phase: "pendiente" | "a-mi" | "al-local" | "ok" | "sin-whatsapp" | "error";
 };
-
-const LAST_SEND_KEY = "merienda-sj-last-venue-send";
-const GAP_MS = 3 * 60 * 1000;
 
 const listeners = new Set<() => void>();
 
@@ -55,22 +47,6 @@ function emptySnapshot() {
   return "{}";
 }
 
-function readLastSend() {
-  const value = Number(localStorage.getItem(LAST_SEND_KEY) ?? "0");
-  return Number.isFinite(value) ? value : 0;
-}
-
-function isPhone() {
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !/Macintosh|Windows/i.test(navigator.userAgent);
-}
-
-function formatWait(ms: number) {
-  const total = Math.max(0, Math.ceil(ms / 1000));
-  const minutes = Math.floor(total / 60);
-  const seconds = String(total % 60).padStart(2, "0");
-  return `${minutes}:${seconds}`;
-}
-
 export function CampanaPanel() {
   const raw = useSyncExternalStore(subscribe, snapshot, emptySnapshot);
   const sent = useMemo(() => {
@@ -84,13 +60,8 @@ export function CampanaPanel() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("pendientes");
   const [copied, setCopied] = useState<string | null>(null);
-  const [waiting, setWaiting] = useState<Place | null>(null);
-  const [chaining, setChaining] = useState(false);
-  const [now, setNow] = useState(() => Date.now());
-  const [lastSend, setLastSend] = useState(0);
-  const [onPhone, setOnPhone] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
-  const sample = getPlace("la-coqueta") ?? places[0];
+  const [qr, setQr] = useState<{ qrDataUrl: string; url: string } | null>(null);
+  const [qrError, setQrError] = useState("");
 
   const catalog = useMemo(
     () => [...places].sort((a, b) => a.name.localeCompare(b.name, "es")),
@@ -98,9 +69,7 @@ export function CampanaPanel() {
   );
   const withPhone = useMemo(() => catalog.filter((place) => place.phone), [catalog]);
   const pendingPlaces = withPhone.filter((place) => !sent[place.slug]);
-  const current = waiting ?? pendingPlaces[0] ?? null;
-  const waitLeft = Math.max(0, lastSend + GAP_MS - now);
-  const canOpen = waitLeft === 0;
+  const current = pendingPlaces[0] ?? null;
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -116,13 +85,6 @@ export function CampanaPanel() {
 
   const pendientes = catalog.filter((place) => !sent[place.slug]).length;
   const mandados = catalog.length - pendientes;
-
-  useEffect(() => {
-    setOnPhone(isPhone());
-    setLastSend(readLastSend());
-    const id = window.setInterval(() => setNow(Date.now()), 250);
-    return () => window.clearInterval(id);
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,10 +116,32 @@ export function CampanaPanel() {
   }, []);
 
   useEffect(() => {
-    if (!onPhone || !chaining || waiting || !current || !canOpen) return;
-    openVenueChat(current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onPhone, chaining, waiting, current?.slug, canOpen]);
+    if (!current) {
+      setQr(null);
+      return;
+    }
+    let cancelled = false;
+    setQr(null);
+    setQrError("");
+    async function loadQr() {
+      try {
+        const response = await fetch(`/api/campana/qr-chat?slug=${encodeURIComponent(current.slug)}`);
+        const data = (await response.json()) as { qrDataUrl?: string; url?: string; error?: string };
+        if (cancelled) return;
+        if (!response.ok || !data.qrDataUrl || !data.url) {
+          setQrError(data.error ?? "No se pudo armar el código.");
+          return;
+        }
+        setQr({ qrDataUrl: data.qrDataUrl, url: data.url });
+      } catch {
+        if (!cancelled) setQrError("No se pudo armar el código.");
+      }
+    }
+    void loadQr();
+    return () => {
+      cancelled = true;
+    };
+  }, [current]);
 
   function mark(slug: string) {
     const next = { ...readSent(), [slug]: true };
@@ -172,51 +156,6 @@ export function CampanaPanel() {
     emit();
   }
 
-  function stampSend() {
-    const at = Date.now();
-    localStorage.setItem(LAST_SEND_KEY, String(at));
-    setLastSend(at);
-    setNow(at);
-  }
-
-  function openVenueChat(place: Place) {
-    if (!place.phone) return;
-    const text = outreachMessage(place);
-    const appUrl = venueWhatsAppAppUrl(place.phone, text);
-    if (!isPhone()) {
-      void copyChatLink(place);
-      setWaiting(place);
-      return;
-    }
-    setWaiting(place);
-    stampSend();
-    if (appUrl) window.location.href = appUrl;
-  }
-
-  async function copyChatLink(place: Place) {
-    if (!place.phone) return;
-    const url = venueChatUrl(place.phone, outreachMessage(place));
-    if (!url) return;
-    await navigator.clipboard.writeText(url);
-    setCopiedLink(true);
-    window.setTimeout(() => setCopiedLink(false), 4000);
-  }
-
-  function confirmSent() {
-    if (!waiting) return;
-    mark(waiting.slug);
-    setWaiting(null);
-    if (!chaining) return;
-    const remaining = pendingPlaces.filter((place) => place.slug !== waiting.slug);
-    if (!remaining.length) setChaining(false);
-  }
-
-  function skipNoWhatsApp() {
-    if (!waiting) return;
-    mark(waiting.slug);
-    setWaiting(null);
-  }
-
   async function copyMessage(place: Place) {
     await navigator.clipboard.writeText(outreachMessage(place));
     setCopied(place.slug);
@@ -224,7 +163,7 @@ export function CampanaPanel() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-6 pb-32 sm:py-10">
+    <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
       <Link
         href="/"
         className="inline-flex min-h-11 items-center gap-2 text-sm font-medium underline-offset-4 hover:underline"
@@ -234,109 +173,66 @@ export function CampanaPanel() {
       </Link>
       <p className="mt-5 text-xs font-medium tracking-wide text-muted-foreground uppercase">Solo vos</p>
       <h1 className="font-heading mt-1 text-3xl sm:text-4xl">Seguir mandando</h1>
-
-      <section className="mt-6 rounded-2xl bg-primary px-4 py-4 text-primary-foreground sm:p-5">
-        <h2 className="font-heading text-xl">Esta es la página. No la otra.</h2>
-        <p className="mt-2 text-sm leading-6">
-          merienda-gamma.vercel.app/campana es la web pública vieja: ahí esta pantalla no existe. No
-          vuelvas a esa dirección. Quedate en el Preview de Cursor (127.0.0.1:4567/campana).
-        </p>
-        <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6">
-          <li>Cerrá la pestaña de merienda-gamma. No hace falta esa web para mandar.</li>
-          <li>En Cursor, tocá Preview o el recuadro de la campaña. Tenés que ver “Seguir mandando” y el nombre del próximo local.</li>
-          <li>En esta computadora no abras WhatsApp. El botón copia el enlace del chat.</li>
-          <li>En el celular, abrí WhatsApp (la app de siempre, sin QR) y pegá ese enlace en un chat con vos mismo, o en Chrome.</li>
-          <li>Si WhatsApp todavía tiene el reloj de restricción, no va a dejar el chat nuevo. Cuando llegue a 0, abrí el enlace y tocá Enviar.</li>
-        </ol>
-      </section>
+      <p className="mt-3 text-base leading-7 text-muted-foreground">
+        Quedate en esta pantalla. No entres a merienda-gamma. El cuadrado de abajo no vincula
+        WhatsApp: es el chat de ese local.
+      </p>
 
       <section className="mt-6 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
         <p className="text-sm text-muted-foreground">
-          {mandados} ya salieron · {pendingPlaces.length} con teléfono, pendientes
+          {mandados} ya salieron · {pendingPlaces.length} pendientes
         </p>
         {current ? (
           <>
             <h2 className="font-heading mt-3 text-2xl">{current.name}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {kindLabels[current.kind]} · {departmentShort[current.department]} · {current.locality}
+              {kindLabels[current.kind]} · {current.locality}
             </p>
-            <p className="mt-2 text-sm">
-              <span className="text-muted-foreground">WhatsApp: </span>
-              {current.phone}
-            </p>
+            <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6">
+              <li>Agarrá el celular. Abrí la cámara, no WhatsApp.</li>
+              <li>Apuntá al cuadrado. Se abre el chat con el texto ya escrito.</li>
+              <li>Tocá Enviar. Después, acá, Ya lo mandé.</li>
+            </ol>
+            {qr ? (
+              <div className="mt-5 rounded-xl bg-background p-4 ring-1 ring-foreground/10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={qr.qrDataUrl}
+                  alt={`Código para mandar el WhatsApp a ${current.name}`}
+                  className="mx-auto size-64 bg-white p-2"
+                />
+                <p className="mt-3 text-center text-sm text-muted-foreground">
+                  Cámara del teléfono. No es el QR de WhatsApp Web.
+                </p>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-muted-foreground">{qrError || "Armando el código…"}</p>
+            )}
             <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-xl bg-background p-4 text-sm leading-6 ring-1 ring-foreground/10">
               {outreachMessage(current)}
             </pre>
-            {waiting?.slug === current.slug ? (
-              <div className="mt-4 space-y-3">
-                {onPhone ? (
-                  <p className="text-sm">
-                    En WhatsApp tocá <strong>Enviar</strong>. Después volvé y tocá Salió, seguir.
-                  </p>
-                ) : (
-                  <p className="text-sm">
-                    {copiedLink ? "Enlace copiado. " : ""}En el celular: Chrome o Safari → pegá en la
-                    barra → se abre WhatsApp → Enviar. Acá no abras WhatsApp Web.
-                  </p>
-                )}
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <Button type="button" size="lg" className="min-h-12" onClick={confirmSent}>
-                    Salió, seguir
-                  </Button>
-                  <Button type="button" size="lg" variant="outline" className="min-h-12" onClick={skipNoWhatsApp}>
-                    Ese número no tiene WhatsApp
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                <Button
-                  type="button"
-                  size="lg"
-                  className="min-h-12"
-                  disabled={!canOpen}
-                  onClick={() => {
-                    setChaining(onPhone);
-                    openVenueChat(current);
-                  }}
-                >
-                  <MessageCircleIcon />
-                  {canOpen
-                    ? onPhone
-                      ? `Mandar ${current.name}`
-                      : "Copiar enlace para el celular"
-                    : `Esperá ${formatWait(waitLeft)}`}
-                </Button>
-                <Button
-                  type="button"
-                  size="lg"
-                  variant="outline"
-                  className="min-h-12"
-                  onClick={() => void copyMessage(current)}
-                >
-                  {copied === current.slug ? <CheckIcon /> : <CopyIcon />}
-                  Copiar texto
-                </Button>
-              </div>
-            )}
-            {chaining && waitLeft > 0 && !waiting ? (
-              <p className="mt-3 text-sm">
-                Siguiente en {formatWait(waitLeft)}. Dejá esta página abierta: se abre solo el
-                próximo WhatsApp.
-              </p>
-            ) : null}
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <Button type="button" size="lg" className="min-h-12" onClick={() => mark(current.slug)}>
+                Ya lo mandé
+              </Button>
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                className="min-h-12"
+                onClick={() => mark(current.slug)}
+              >
+                Ese número no tiene WhatsApp
+              </Button>
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Si WhatsApp muestra el reloj de 24 horas, todavía no deja chats nuevos. Cuando llegue a
+              0, escaneá de nuevo.
+            </p>
           </>
         ) : (
           <p className="mt-3 text-sm">No quedan locales con teléfono pendientes.</p>
         )}
-      </section>
-
-      <section className="mt-8 rounded-2xl bg-muted px-4 py-4 text-sm leading-6 sm:p-5">
-        <p>
-          Si WhatsApp dice que la cuenta está restringida, no es la página: es el reloj de ~24 h.
-          En chats que ya existían podés escribir. Los que faltan son chats nuevos; salen con este
-          método cuando el reloj llegue a cero. No hace falta escanear nada.
-        </p>
       </section>
 
       <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -377,7 +273,7 @@ export function CampanaPanel() {
                       {mandado ? (
                         <Badge>Enviado</Badge>
                       ) : isCurrent ? (
-                        <Badge>Siguiente</Badge>
+                        <Badge>Este</Badge>
                       ) : (
                         <Badge variant="outline">Pendiente</Badge>
                       )}
@@ -406,21 +302,6 @@ export function CampanaPanel() {
                       {copied === place.slug ? <CheckIcon /> : <CopyIcon />}
                       {copied === place.slug ? "Copiado" : "Copiar texto"}
                     </Button>
-                    {!mandado && place.phone ? (
-                      <Button
-                        type="button"
-                        size="lg"
-                        className="min-h-12 w-full sm:w-auto"
-                        disabled={!canOpen}
-                        onClick={() => {
-                          setChaining(false);
-                          openVenueChat(place);
-                        }}
-                      >
-                        <MessageCircleIcon />
-                        {onPhone ? "Mandar este" : "Copiar enlace"}
-                      </Button>
-                    ) : null}
                     {mandado ? (
                       <Button
                         type="button"
@@ -431,7 +312,7 @@ export function CampanaPanel() {
                       >
                         Todavía no
                       </Button>
-                    ) : (
+                    ) : !isCurrent ? (
                       <Button
                         type="button"
                         size="lg"
@@ -441,7 +322,7 @@ export function CampanaPanel() {
                       >
                         Ya lo mandé
                       </Button>
-                    )}
+                    ) : null}
                   </CardFooter>
                 </Card>
               </li>
@@ -453,39 +334,6 @@ export function CampanaPanel() {
           </li>
         )}
       </ul>
-
-      {current ? (
-        <div
-          className="fixed inset-x-0 bottom-16 z-40 border-t border-border/80 bg-background/95 p-3 backdrop-blur-md md:bottom-0"
-          style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
-        >
-          <div className="mx-auto flex w-full max-w-3xl">
-            {waiting?.slug === current.slug ? (
-              <Button type="button" size="lg" className="min-h-12 w-full" onClick={confirmSent}>
-                Salió, seguir
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                size="lg"
-                className="min-h-12 w-full"
-                disabled={!canOpen}
-                onClick={() => {
-                  setChaining(onPhone);
-                  openVenueChat(current);
-                }}
-              >
-                <MessageCircleIcon />
-                {canOpen
-                  ? onPhone
-                    ? `Mandar ${current.name}`
-                    : "Copiar enlace para el celular"
-                  : `Esperá ${formatWait(waitLeft)}`}
-              </Button>
-            )}
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
