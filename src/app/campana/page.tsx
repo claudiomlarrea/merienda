@@ -1,7 +1,7 @@
 import { CampanaPanel } from "@/components/campana-panel";
 
 export const metadata = {
-  title: "Enviar desde mi WhatsApp",
+  title: "Enviar por SMS",
   robots: { index: false, follow: false },
 };
 

@@ -27,7 +27,7 @@ Recomendación: subila a **Vercel**. Conectá el repo, `npm run build` corre sol
 - El buscador ignora tildes y entiende “pachatas”, “cafés”, “helado”, “parrilla”, “herboristería”, “sin tacc”.
 - Rutas (Zonda–Ullum, Libertador, Desamparados, Barreal, Jáchal, Valle Fértil).
 - Formulario para **sumar un local** aunque falte la calle. En este prototipo se guarda en el navegador.
-- Pantalla de campaña (`/campana`): si WhatsApp restringe la cuenta, el texto de **Claudio Larrea** se manda por SMS, de a un local, con el número y el mensaje listos.
+- Pantalla de campaña (`/campana`): WhatsApp ya se mandó a 51 locales y no se repite. El resto con teléfono (24) sale por **SMS** con el texto de Claudio Larrea. **Enviar todos ahora** abre `/campana/sms` en el celular: Mensajes se arma solo y, al volver de cada envío, sigue con el siguiente. Los 91 sin teléfono no se pueden SMS. Opcional: HttpSMS (el chip del Samsung) o Twilio para mandarlos desde la compu, de a uno, sin colgar el lote.
 
 Los horarios de pueblo cambian. La guía lo dice en cada ficha: confirmá por redes antes de cruzar el dique.
 

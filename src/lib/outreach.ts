@@ -4,10 +4,74 @@ import type { Place } from "@/lib/types";
 export const SHARE_ORIGIN = "https://merienda-gamma.vercel.app";
 
 export const MY_WHATSAPP_KEY = "merienda-sj-my-whatsapp";
+export const SMS_SENT_KEY = "merienda-sj-sms-sent";
+export const SMS_CRED_KEY = "merienda-sj-sms-cred";
+
+/** Lo que el panel viejo mezclaba con WhatsApp y con locales sin teléfono. No usarlo para el lote de SMS. */
 export const OUTREACH_SENT_KEY = "merienda-sj-outreach-sent";
+
+/** Ya recibieron el WhatsApp de Claudio. No repetir por SMS. */
+export const WHATSAPP_ALREADY_SENT = new Set([
+  "la-coqueta",
+  "gardel-confiteria",
+  "el-ensueno-ullum",
+  "cinco-uno",
+  "entre-montanas",
+  "casa-lena",
+  "bonito-cafe",
+  "clapton",
+  "las-delicias",
+  "victoria-igualada",
+  "edesia-jachal",
+  "don-lisandro",
+  "yo-tengo-fe",
+  "inna-cafe",
+  "panaderia-san-martin",
+  "dulce-alma",
+  "isalu-pasteleria",
+  "bendito-cafe",
+  "panaderia-cuyo",
+  "confiteria-paris",
+  "thonet-cafe",
+  "tres-cumbres",
+  "pasteleria-la-nueva",
+  "helados-del-parque-caucete",
+  "cefferino",
+  "vono-cafe",
+  "del-parque-desamparados",
+  "hostal-de-palito",
+  "la-tapera",
+  "rocknrolla",
+  "las-invernadas",
+  "de-mono-rojo",
+  "resto-1592",
+  "tazio",
+  "roggers",
+  "la-paisanita",
+  "hells-pizza",
+  "almacen-de-pizzas",
+  "estacion-de-vinos",
+  "cava-de-autor",
+  "nono-chicho",
+  "abuelo-yuyi",
+  "soychu",
+  "redondita",
+  "chia-fast-good",
+  "sushiclub",
+  "sushi-2x1",
+  "parrilla-los-nogales",
+  "rocco",
+  "alma-delicias-sin-tacc",
+  "di-roma-rivadavia",
+]);
 
 export function placeShareUrl(slug: string) {
   return `${SHARE_ORIGIN}/lugares/${slug}`;
+}
+
+/** Quedan para SMS: tienen teléfono y no recibieron el WhatsApp de Claudio. */
+export function needsSmsOutreach(place: Place) {
+  return Boolean(place.phone) && !WHATSAPP_ALREADY_SENT.has(place.slug);
 }
 
 /** Mensaje exacto que sale de tu WhatsApp hacia cada local. */
