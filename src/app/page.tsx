@@ -104,6 +104,14 @@ export default function HomePage() {
             >
               Sumar un local que viste
             </Button>
+            <Button
+              render={<Link href="/contacto" />}
+              variant="outline"
+              size="lg"
+              className="min-h-12 w-full border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 sm:w-auto"
+            >
+              Contacto
+            </Button>
           </div>
         </div>
       </section>

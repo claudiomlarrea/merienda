@@ -10,8 +10,8 @@ export default function NotFound() {
         </p>
       <div className="flex gap-2">
         <Button render={<Link href="/#explorar" />}>Ver lugares</Button>
-        <Button render={<Link href="/sumar" />} variant="outline">
-          Sumar un local
+        <Button render={<Link href="/contacto" />} variant="outline">
+          Contacto
         </Button>
       </div>
     </div>

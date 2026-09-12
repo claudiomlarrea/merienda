@@ -25,6 +25,9 @@ export function SiteFooter() {
           <Link href="/sumar" className="hover:underline">
             Sumar un local
           </Link>
+          <Link href="/contacto" className="hover:underline">
+            Contacto
+          </Link>
           <Link href="/rutas" className="hover:underline">
             Rutas
           </Link>

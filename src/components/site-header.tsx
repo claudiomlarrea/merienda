@@ -19,6 +19,7 @@ const links = [
   { href: "/que-falta", label: "Qué falta" },
   { href: "/rutas", label: "Rutas" },
   { href: "/sumar", label: "Sumar un local" },
+  { href: "/contacto", label: "Contacto" },
 ];
 
 export function SiteHeader() {

@@ -144,7 +144,12 @@ export default function SumarPage() {
           Publicar en la guía
         </Button>
         <p className="text-xs text-muted-foreground">
-          Queda guardado en este teléfono. No reemplaza las fichas que ya están.
+          Queda guardado en este teléfono. No reemplaza las fichas que ya están. Si es un comentario
+          general, usá{" "}
+          <a href="/contacto" className="underline underline-offset-4">
+            Contacto
+          </a>
+          .
         </p>
       </form>
     </div>
