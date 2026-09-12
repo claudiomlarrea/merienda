@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { departmentShort, kindLabels } from "@/lib/labels";
 import {
   OUTREACH_SENT_KEY,
+  SHARE_ORIGIN,
   outreachMessage,
   venueChatUrl,
   venueWhatsAppAppUrl,
@@ -60,8 +61,8 @@ function readLastSend() {
   return Number.isFinite(value) ? value : 0;
 }
 
-function isMobile() {
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+function isPhone() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !/Macintosh|Windows/i.test(navigator.userAgent);
 }
 
 function formatWait(ms: number) {
@@ -88,6 +89,8 @@ export function CampanaPanel() {
   const [chaining, setChaining] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const [lastSend, setLastSend] = useState(0);
+  const [onPhone, setOnPhone] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const sample = getPlace("la-coqueta") ?? places[0];
 
   const catalog = useMemo(
@@ -116,6 +119,7 @@ export function CampanaPanel() {
   const mandados = catalog.length - pendientes;
 
   useEffect(() => {
+    setOnPhone(isPhone());
     setLastSend(readLastSend());
     const id = window.setInterval(() => setNow(Date.now()), 250);
     return () => window.clearInterval(id);
@@ -151,10 +155,10 @@ export function CampanaPanel() {
   }, []);
 
   useEffect(() => {
-    if (!chaining || waiting || !current || !canOpen) return;
+    if (!onPhone || !chaining || waiting || !current || !canOpen) return;
     openVenueChat(current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chaining, waiting, current?.slug, canOpen]);
+  }, [onPhone, chaining, waiting, current?.slug, canOpen]);
 
   function mark(slug: string) {
     const next = { ...readSent(), [slug]: true };
@@ -180,14 +184,23 @@ export function CampanaPanel() {
     if (!place.phone) return;
     const text = outreachMessage(place);
     const appUrl = venueWhatsAppAppUrl(place.phone, text);
-    const webUrl = venueChatUrl(place.phone, text);
-    setWaiting(place);
-    stampSend();
-    if (isMobile() && appUrl) {
-      window.location.href = appUrl;
+    if (!isPhone()) {
+      void copyChatLink(place);
+      setWaiting(place);
       return;
     }
-    if (webUrl) window.open(webUrl, "_blank", "noopener,noreferrer");
+    setWaiting(place);
+    stampSend();
+    if (appUrl) window.location.href = appUrl;
+  }
+
+  async function copyChatLink(place: Place) {
+    if (!place.phone) return;
+    const url = venueChatUrl(place.phone, outreachMessage(place));
+    if (!url) return;
+    await navigator.clipboard.writeText(url);
+    setCopiedLink(true);
+    window.setTimeout(() => setCopiedLink(false), 4000);
   }
 
   function confirmSent() {
@@ -222,11 +235,32 @@ export function CampanaPanel() {
       </Link>
       <p className="mt-5 text-xs font-medium tracking-wide text-muted-foreground uppercase">Solo vos</p>
       <h1 className="font-heading mt-1 text-3xl sm:text-4xl">Seguir mandando</h1>
-      <p className="mt-3 text-base leading-7 text-muted-foreground">
-        Sin código QR. Se abre tu app de WhatsApp con el texto de <strong>Claudio Larrea</strong> y
-        la ficha de ese local. Tocás Enviar. Volvés. Sigue el próximo. Tres minutos entre uno y otro
-        para que no te vuelva a restringir.
-      </p>
+
+      <section className="mt-6 rounded-2xl bg-primary px-4 py-4 text-primary-foreground sm:p-5">
+        <h2 className="font-heading text-xl">No uses la computadora</h2>
+        <p className="mt-2 text-sm leading-6">
+          Si tocás Mandar acá, se abre WhatsApp de la Mac y pide un QR. Eso no se puede: WhatsApp te
+          restringió vincular dispositivos. Hay que mandarlo desde el <strong>teléfono</strong>,
+          donde tu cuenta ya está abierta. No escanés nada.
+        </p>
+        <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6">
+          <li>Agarrá el celular. Abrí la app verde de WhatsApp, la de siempre. Listo: no vincules nada.</li>
+          <li>
+            Si todavía ves el reloj de la restricción, esperá a que llegue a 0. Hasta entonces no deja
+            chats nuevos.
+          </li>
+          <li>
+            En el celular abrí Chrome o Safari (no la app de WhatsApp). Entrá a{" "}
+            <span className="break-all font-medium">{SHARE_ORIGIN}/campana</span>
+          </li>
+          <li>Tocá el botón grande Mandar. Se abre el chat del local con el texto ya escrito.</li>
+          <li>Tocá Enviar. Volvé a Merienda y tocá Salió, seguir. Esperá 3 minutos y repetí.</li>
+        </ol>
+        <p className="mt-3 text-sm leading-6">
+          En la pantalla verde, si aparece, tocá solo <strong>Abrir aplicación</strong> y nunca
+          “Continuar en WhatsApp Web”.
+        </p>
+      </section>
 
       <section className="mt-6 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
         <p className="text-sm text-muted-foreground">
@@ -247,11 +281,16 @@ export function CampanaPanel() {
             </pre>
             {waiting?.slug === current.slug ? (
               <div className="mt-4 space-y-3">
-                <p className="text-sm">
-                  En WhatsApp tocá <strong>Enviar</strong>. Si todavía está el reloj de la
-                  restricción, no va a dejar abrir chats nuevos: esperá a que llegue a cero y
-                  volvé a este botón.
-                </p>
+                {onPhone ? (
+                  <p className="text-sm">
+                    En WhatsApp tocá <strong>Enviar</strong>. Después volvé y tocá Salió, seguir.
+                  </p>
+                ) : (
+                  <p className="text-sm">
+                    {copiedLink ? "Enlace copiado. " : ""}En el celular: Chrome o Safari → pegá en la
+                    barra → se abre WhatsApp → Enviar. Acá no abras WhatsApp Web.
+                  </p>
+                )}
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button type="button" size="lg" className="min-h-12" onClick={confirmSent}>
                     Salió, seguir
@@ -269,12 +308,16 @@ export function CampanaPanel() {
                   className="min-h-12"
                   disabled={!canOpen}
                   onClick={() => {
-                    setChaining(true);
+                    setChaining(onPhone);
                     openVenueChat(current);
                   }}
                 >
                   <MessageCircleIcon />
-                  {canOpen ? `Mandar ${current.name}` : `Esperá ${formatWait(waitLeft)}`}
+                  {canOpen
+                    ? onPhone
+                      ? `Mandar ${current.name}`
+                      : "Copiar enlace para el celular"
+                    : `Esperá ${formatWait(waitLeft)}`}
                 </Button>
                 <Button
                   type="button"
@@ -387,7 +430,7 @@ export function CampanaPanel() {
                         }}
                       >
                         <MessageCircleIcon />
-                        Mandar este
+                        {onPhone ? "Mandar este" : "Copiar enlace"}
                       </Button>
                     ) : null}
                     {mandado ? (
@@ -440,12 +483,16 @@ export function CampanaPanel() {
                 className="min-h-12 w-full"
                 disabled={!canOpen}
                 onClick={() => {
-                  setChaining(true);
+                  setChaining(onPhone);
                   openVenueChat(current);
                 }}
               >
                 <MessageCircleIcon />
-                {canOpen ? `Mandar ${current.name}` : `Esperá ${formatWait(waitLeft)}`}
+                {canOpen
+                  ? onPhone
+                    ? `Mandar ${current.name}`
+                    : "Copiar enlace para el celular"
+                  : `Esperá ${formatWait(waitLeft)}`}
               </Button>
             )}
           </div>
