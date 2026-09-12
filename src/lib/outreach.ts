@@ -83,10 +83,16 @@ export function venueChatUrl(phone: string, text: string) {
   return `https://api.whatsapp.com/send?phone=${digits}&text=${encodeURIComponent(text)}`;
 }
 
-export function venueWhatsAppAppUrl(phone: string, text: string) {
+export function venueSmsUrl(phone: string, text: string) {
   const digits = toWhatsAppDigits(phone) ?? venueWhatsAppCandidates(phone)[0];
   if (!digits) return null;
-  return `whatsapp://send?phone=${digits}&text=${encodeURIComponent(text)}`;
+  return `sms:+${digits}?body=${encodeURIComponent(text)}`;
+}
+
+export function venueCallUrl(phone: string) {
+  const digits = toWhatsAppDigits(phone) ?? venueWhatsAppCandidates(phone)[0];
+  if (!digits) return null;
+  return `tel:+${digits}`;
 }
 
 /** Abre un chat con TU WhatsApp. */

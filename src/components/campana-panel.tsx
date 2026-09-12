@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { departmentShort, kindLabels } from "@/lib/labels";
-import { OUTREACH_SENT_KEY, outreachMessage } from "@/lib/outreach";
+import { OUTREACH_SENT_KEY, outreachMessage, venueCallUrl } from "@/lib/outreach";
 import { places } from "@/lib/places";
 import type { Place } from "@/lib/types";
 
@@ -60,7 +60,12 @@ export function CampanaPanel() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("pendientes");
   const [copied, setCopied] = useState<string | null>(null);
-  const [qr, setQr] = useState<{ qrDataUrl: string; textQrDataUrl: string; url: string; text: string } | null>(null);
+  const [qr, setQr] = useState<{
+    smsQrDataUrl: string;
+    textQrDataUrl: string;
+    text: string;
+    phone: string;
+  } | null>(null);
   const [qrError, setQrError] = useState("");
 
   const catalog = useMemo(
@@ -127,22 +132,22 @@ export function CampanaPanel() {
       try {
         const response = await fetch(`/api/campana/qr-chat?slug=${encodeURIComponent(current.slug)}`);
         const data = (await response.json()) as {
-          qrDataUrl?: string;
+          smsQrDataUrl?: string;
           textQrDataUrl?: string;
-          url?: string;
           text?: string;
+          phone?: string;
           error?: string;
         };
         if (cancelled) return;
-        if (!response.ok || !data.qrDataUrl || !data.textQrDataUrl || !data.text) {
+        if (!response.ok || !data.smsQrDataUrl || !data.textQrDataUrl || !data.text || !data.phone) {
           setQrError(data.error ?? "No se pudo armar el código.");
           return;
         }
         setQr({
-          qrDataUrl: data.qrDataUrl,
+          smsQrDataUrl: data.smsQrDataUrl,
           textQrDataUrl: data.textQrDataUrl,
-          url: data.url ?? "",
           text: data.text,
+          phone: data.phone,
         });
       } catch {
         if (!cancelled) setQrError("No se pudo armar el código.");
@@ -183,10 +188,10 @@ export function CampanaPanel() {
         Volver a Merienda
       </Link>
       <p className="mt-5 text-xs font-medium tracking-wide text-muted-foreground uppercase">Solo vos</p>
-      <h1 className="font-heading mt-1 text-3xl sm:text-4xl">Seguir mandando</h1>
+      <h1 className="font-heading mt-1 text-3xl sm:text-4xl">Seguir por SMS</h1>
       <p className="mt-3 text-base leading-7 text-muted-foreground">
-        Quedate en esta pantalla. No entres a merienda-gamma. El cuadrado de abajo no vincula
-        WhatsApp: es el chat de ese local.
+        WhatsApp no deja enviar. El texto de Claudio Larrea sale por <strong>Mensajes</strong> del
+        celular (el globito de SMS, no el ícono verde).
       </p>
 
       <section className="mt-6 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
@@ -199,27 +204,28 @@ export function CampanaPanel() {
             <p className="mt-1 text-sm text-muted-foreground">
               {kindLabels[current.kind]} · {current.locality}
             </p>
+            <p className="mt-3 font-heading text-2xl tracking-wide">{current.phone}</p>
             <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6">
-              <li>Si el chat ya se abrió y está vacío, no hace falta volver a abrir WhatsApp.</li>
-              <li>Con la cámara, escaneá el segundo cuadrado (el del texto).</li>
-              <li>Tocá Copiar. En el chat, tocá el recuadro de escribir, pegá, Enviar.</li>
+              <li>En el celular abrí <strong>Mensajes</strong>, no WhatsApp.</li>
+              <li>Escaneá el cuadrado 1: se arma el SMS con el número y el texto.</li>
+              <li>Tocá Enviar. Si no abre, escaneá el 2, copiá el texto y mandalo a ese número.</li>
             </ol>
             {qr ? (
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="rounded-xl bg-background p-3 ring-1 ring-foreground/10">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={qr.qrDataUrl}
-                    alt={`Abrir el chat de ${current.name}`}
+                    src={qr.smsQrDataUrl}
+                    alt={`SMS para ${current.name}`}
                     className="mx-auto size-52 bg-white p-2"
                   />
-                  <p className="mt-2 text-center text-sm font-medium">1. Abrir el chat</p>
+                  <p className="mt-2 text-center text-sm font-medium">1. Abrir el SMS</p>
                 </div>
                 <div className="rounded-xl bg-background p-3 ring-1 ring-foreground/10">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={qr.textQrDataUrl}
-                    alt={`Texto para pegar en el chat de ${current.name}`}
+                    alt={`Texto del SMS para ${current.name}`}
                     className="mx-auto size-52 bg-white p-2"
                   />
                   <p className="mt-2 text-center text-sm font-medium">2. Copiar el texto</p>
@@ -228,9 +234,7 @@ export function CampanaPanel() {
             ) : (
               <p className="mt-4 text-sm text-muted-foreground">{qrError || "Armando el código…"}</p>
             )}
-            <p className="mt-4 text-sm leading-6">
-              WhatsApp a veces abre el contacto y no pega el mensaje. Pegalo vos. El texto es este:
-            </p>
+            <p className="mt-4 text-sm leading-6">El SMS dice esto:</p>
             <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-xl bg-background p-4 text-sm leading-6 ring-1 ring-foreground/10">
               {outreachMessage(current)}
             </pre>
@@ -238,19 +242,33 @@ export function CampanaPanel() {
               <Button type="button" size="lg" className="min-h-12" onClick={() => mark(current.slug)}>
                 Ya lo mandé
               </Button>
+              {current.phone && venueCallUrl(current.phone) ? (
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="outline"
+                  className="min-h-12"
+                  onClick={() => {
+                    const url = venueCallUrl(current.phone as string);
+                    if (url) window.location.href = url;
+                  }}
+                >
+                  Llamar
+                </Button>
+              ) : null}
               <Button
                 type="button"
                 size="lg"
-                variant="outline"
+                variant="ghost"
                 className="min-h-12"
                 onClick={() => mark(current.slug)}
               >
-                Ese número no tiene WhatsApp
+                Este número no recibe SMS
               </Button>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
-              Si abajo dice que no podés iniciar chats nuevos, igual podés escribir en este chat
-              porque ya existía: pegá el texto y enviá.
+              Si el código 1 no abre Mensajes, creá un SMS nuevo, poné el número de arriba y pegá el
+              texto.
             </p>
           </>
         ) : (
