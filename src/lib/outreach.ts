@@ -10,9 +10,10 @@ export function placeShareUrl(slug: string) {
   return `${SHARE_ORIGIN}/lugares/${slug}`;
 }
 
+/** Mensaje exacto que sale de tu WhatsApp hacia cada local. */
 export function outreachMessage(place: Place) {
   return [
-    "Hola, soy Claudio. Armamos Merienda, una guía para el celular de dónde merendar y comer en los 19 departamentos de San Juan: https://merienda-gamma.vercel.app",
+    "Hola, soy Claudio Larrea. Armamos Merienda, una guía para el celular de dónde merendar y comer en los 19 departamentos de San Juan: https://merienda-gamma.vercel.app",
     "",
     `Los incluimos acá: ${placeShareUrl(place.slug)}`,
     "",
@@ -20,17 +21,17 @@ export function outreachMessage(place: Place) {
   ].join("\n");
 }
 
-/** Texto que te llega a vos, con a quién reenviar. */
+/** Copia en tu chat, idéntica a la que recibe el local. */
 export function selfOutreachMessage(place: Place) {
-  const destino = place.phone
-    ? `Reenviar a: ${place.name}\nTel del local: ${place.phone}`
-    : `Reenviar a: ${place.name}\nSin teléfono en la ficha — buscalo por el nombre.`;
-  return `${destino}\n\n${outreachMessage(place)}`;
+  return outreachMessage(place);
+}
+
+export function campaignStartNote(count: number) {
+  return `Claudio Larrea — Merienda. Voy a enviar ${count} mensajes, cada uno con la ficha de ese local. Primero te llega a vos y después sale de tu WhatsApp al contacto de la empresa.`;
 }
 
 /**
- * Normaliza un celular argentino para wa.me.
- * Solo se usa con TU número. Nunca con el del local.
+ * Normaliza un celular argentino para WhatsApp.
  */
 export function toWhatsAppDigits(phone: string): string | null {
   let digits = phone.replace(/\D/g, "");
@@ -46,14 +47,34 @@ export function toWhatsAppDigits(phone: string): string | null {
   return null;
 }
 
-/** Abre un chat con TU WhatsApp, nunca con el del restorán. */
+/** Prueba con 9 y sin 9: muchos fijos de San Juan están cargados sin celular. */
+export function venueWhatsAppCandidates(phone: string): string[] {
+  const seen = new Set<string>();
+  const add = (value: string | null) => {
+    if (value && value.length >= 11) seen.add(value);
+  };
+  add(toWhatsAppDigits(phone));
+  let raw = phone.replace(/\D/g, "");
+  if (raw.startsWith("00")) raw = raw.slice(2);
+  if (raw.startsWith("0")) raw = raw.slice(1);
+  if (!raw.startsWith("54")) raw = `54${raw}`;
+  add(raw);
+  if (raw.startsWith("549")) add(`54${raw.slice(3)}`);
+  if (raw.startsWith("54") && !raw.startsWith("549")) add(`549${raw.slice(2)}`);
+  return [...seen];
+}
+
+export function whatsappJid(digits: string) {
+  return `${digits}@s.whatsapp.net`;
+}
+
+/** Abre un chat con TU WhatsApp. */
 export function myWhatsAppUrl(myPhone: string, text: string) {
   const digits = toWhatsAppDigits(myPhone);
   if (!digits) return null;
   return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
 
-/** Abre la app de WhatsApp sin sacar de Merienda. */
 export function myWhatsAppAppUrl(myPhone: string, text: string) {
   const digits = toWhatsAppDigits(myPhone);
   if (!digits) return null;

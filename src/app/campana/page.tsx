@@ -1,7 +1,7 @@
 import { CampanaPanel } from "@/components/campana-panel";
 
 export const metadata = {
-  title: "Mandármelos por WhatsApp",
+  title: "Enviar desde mi WhatsApp",
   robots: { index: false, follow: false },
 };
 

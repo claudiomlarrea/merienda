@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { ArrowLeftIcon, CheckIcon, CopyIcon, SendIcon } from "lucide-react";
+import { ArrowLeftIcon, CheckIcon, CopyIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,15 +11,42 @@ import { departmentShort, kindLabels } from "@/lib/labels";
 import {
   MY_WHATSAPP_KEY,
   OUTREACH_SENT_KEY,
-  myWhatsAppAppUrl,
-  myWhatsAppUrl,
-  selfOutreachMessage,
+  outreachMessage,
   toWhatsAppDigits,
 } from "@/lib/outreach";
-import { places } from "@/lib/places";
+import { getPlace, places } from "@/lib/places";
 import type { Place } from "@/lib/types";
 
 type Filter = "pendientes" | "mandados" | "todos";
+
+type SendRow = {
+  slug: string;
+  name: string;
+  phase: "pendiente" | "a-mi" | "al-local" | "ok" | "sin-whatsapp" | "error";
+  detail?: string;
+};
+
+type BridgeSnapshot = {
+  status: "idle" | "qr" | "connected" | "sending" | "error";
+  qrDataUrl: string | null;
+  me: string | null;
+  error: string | null;
+  sending: boolean;
+  current: number;
+  total: number;
+  rows: SendRow[];
+};
+
+const emptyBridge: BridgeSnapshot = {
+  status: "idle",
+  qrDataUrl: null,
+  me: null,
+  error: null,
+  sending: false,
+  current: 0,
+  total: 0,
+  rows: [],
+};
 
 const listeners = new Set<() => void>();
 
@@ -53,6 +80,15 @@ function emptySnapshot() {
   return JSON.stringify({ phone: "", sent: {} });
 }
 
+const phaseLabel: Record<SendRow["phase"], string> = {
+  pendiente: "En espera",
+  "a-mi": "Llegando a tu chat",
+  "al-local": "Saliendo al local",
+  ok: "Enviado al local",
+  "sin-whatsapp": "Ese número no tiene WhatsApp",
+  error: "Error",
+};
+
 export function CampanaPanel() {
   const raw = useSyncExternalStore(subscribe, snapshot, emptySnapshot);
   const { phone: savedPhone, sent } = useMemo(() => {
@@ -71,17 +107,19 @@ export function CampanaPanel() {
   const [filter, setFilter] = useState<Filter>("pendientes");
   const [copied, setCopied] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState("");
-  const [notice, setNotice] = useState<{ name: string; appUrl: string | null } | null>(
-    null
-  );
+  const [bridge, setBridge] = useState<BridgeSnapshot>(emptyBridge);
+  const [busy, setBusy] = useState("");
 
   const digits = toWhatsAppDigits(savedPhone);
   const ready = Boolean(digits);
+  const sample = getPlace("la-coqueta") ?? places[0];
 
   const catalog = useMemo(
     () => [...places].sort((a, b) => a.name.localeCompare(b.name, "es")),
     []
   );
+  const withPhone = useMemo(() => catalog.filter((place) => place.phone), [catalog]);
+  const pendingSlugs = withPhone.filter((place) => !sent[place.slug]).map((place) => place.slug);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -98,6 +136,43 @@ export function CampanaPanel() {
   const pendientes = catalog.filter((place) => !sent[place.slug]).length;
   const mandados = catalog.length - pendientes;
 
+  useEffect(() => {
+    let cancelled = false;
+    async function tick() {
+      try {
+        const response = await fetch("/api/campana/estado", { cache: "no-store" });
+        const data = (await response.json()) as BridgeSnapshot;
+        if (!cancelled) setBridge(data);
+      } catch {
+        // el servidor se está levantando
+      }
+    }
+    void tick();
+    const id = window.setInterval(() => void tick(), 1000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!bridge.rows.length) return;
+    const next = { ...readSent() };
+    let changed = false;
+    for (const row of bridge.rows) {
+      if ((row.phase === "ok" || row.phase === "a-mi" || row.phase === "al-local") && !next[row.slug]) {
+        if (row.phase === "ok") {
+          next[row.slug] = true;
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      localStorage.setItem(OUTREACH_SENT_KEY, JSON.stringify(next));
+      emit();
+    }
+  }, [bridge.rows]);
+
   function savePhone(event: React.FormEvent) {
     event.preventDefault();
     const next = toWhatsAppDigits(phoneValue);
@@ -111,12 +186,6 @@ export function CampanaPanel() {
     emit();
   }
 
-  function markSent(slug: string) {
-    const next = { ...readSent(), [slug]: true };
-    localStorage.setItem(OUTREACH_SENT_KEY, JSON.stringify(next));
-    emit();
-  }
-
   function unmark(slug: string) {
     const next = { ...readSent() };
     delete next[slug];
@@ -125,23 +194,48 @@ export function CampanaPanel() {
   }
 
   async function copyMessage(place: Place) {
-    await navigator.clipboard.writeText(selfOutreachMessage(place));
+    await navigator.clipboard.writeText(outreachMessage(place));
     setCopied(place.slug);
     window.setTimeout(() => setCopied((current) => (current === place.slug ? null : current)), 1800);
   }
 
-  async function sendToMe(place: Place) {
-    if (!savedPhone) return;
-    const text = selfOutreachMessage(place);
-    const appUrl = myWhatsAppAppUrl(savedPhone, text);
+  async function conectar() {
+    setBusy("conectar");
     try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      // El aviso de abajo igual deja copiar de nuevo.
+      await fetch("/api/campana/conectar", { method: "POST" });
+    } finally {
+      setBusy("");
     }
-    markSent(place.slug);
-    setNotice({ name: place.name, appUrl });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function enviarTodos() {
+    if (!savedPhone || !pendingSlugs.length) return;
+    const ok = window.confirm(
+      `Se van a mandar ${pendingSlugs.length} mensajes desde TU WhatsApp. Cada uno dice Claudio Larrea y lleva la ficha de esa empresa. Primero te llega a vos; después sale al local. ¿Seguimos?`
+    );
+    if (!ok) return;
+    setBusy("enviar");
+    try {
+      const response = await fetch("/api/campana/enviar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ myPhone: savedPhone, slugs: pendingSlugs }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        window.alert(data.error ?? "No se pudo empezar el envío.");
+      }
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function parar() {
+    await fetch("/api/campana/parar", { method: "POST" });
+  }
+
+  async function desconectar() {
+    await fetch("/api/campana/desconectar", { method: "POST" });
   }
 
   return (
@@ -154,41 +248,12 @@ export function CampanaPanel() {
         Volver a Merienda
       </Link>
       <p className="mt-5 text-xs font-medium tracking-wide text-muted-foreground uppercase">Solo vos</p>
-      <h1 className="font-heading mt-1 text-3xl sm:text-4xl">Mandármelos por WhatsApp</h1>
+      <h1 className="font-heading mt-1 text-3xl sm:text-4xl">Enviar desde mi WhatsApp</h1>
       <p className="mt-3 text-base leading-7 text-muted-foreground">
-        Esta lista no se tiene que ir. Tocá Mandarme: se copia el texto y se abre la app de
-        WhatsApp. Si te aparece una página verde, no es Merienda — tocá <strong>Atrás</strong> y
-        volvés acá. Después reenvialo al local.
+        Vinculás tu WhatsApp como un dispositivo. El sistema te manda el texto a tu número y,
+        enseguida, el <strong>mismo texto</strong> sale de tu cuenta al local. Cada empresa recibe
+        su ficha. Firmás <strong>Claudio Larrea</strong>. Esta página no se va a la pantalla verde.
       </p>
-
-      {notice ? (
-        <div className="mt-6 rounded-2xl bg-primary px-4 py-4 text-sm leading-6 text-primary-foreground">
-          <p className="font-medium">Listo: {notice.name}</p>
-          <p className="mt-2 opacity-95">
-            El mensaje está copiado. Abrí WhatsApp en el teléfono o en la app de la Mac, pegá y
-            mandalo. Esta lista se queda acá. Si ya estás en una pantalla verde, tocá{" "}
-            <strong>Atrás</strong> (flecha arriba a la izquierda).
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              className="min-h-11"
-              onClick={() => setNotice(null)}
-            >
-              Seguir con el siguiente
-            </Button>
-            <Button render={<Link href="/" />} variant="secondary" className="min-h-11">
-              Ir al inicio
-            </Button>
-            {notice.appUrl ? (
-              <Button render={<a href={notice.appUrl} />} variant="outline" className="min-h-11">
-                Abrir la app
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
 
       <form
         onSubmit={savePhone}
@@ -210,22 +275,100 @@ export function CampanaPanel() {
           />
         </label>
         <p className="mt-2 text-sm text-muted-foreground">
-          El celular con el que vas a reenviar. No el del local.
+          El celular de Claudio, el mismo de la app de WhatsApp.
         </p>
         {phoneError ? <p className="mt-2 text-sm text-destructive">{phoneError}</p> : null}
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Button type="submit" size="lg" className="min-h-12">
             Guardar mi número
           </Button>
-          {ready ? (
-            <p className="text-sm text-muted-foreground">
-              Listo. Los mensajes van a +{digits}.
-            </p>
-          ) : null}
+          {ready ? <p className="text-sm text-muted-foreground">Listo: +{digits}</p> : null}
         </div>
       </form>
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <section className="mt-8 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
+        <h2 className="font-heading text-xl">1. Vincular tu WhatsApp</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          En el teléfono: WhatsApp → Dispositivos vinculados → Vincular. Escaneá el código. Queda
+          como WhatsApp Web: los mensajes salen de tu cuenta.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button type="button" size="lg" className="min-h-12" onClick={() => void conectar()} disabled={busy === "conectar" || bridge.status === "connected"}>
+            {bridge.status === "connected" ? "Vinculado" : "Mostrar código QR"}
+          </Button>
+          {bridge.status === "connected" ? (
+            <Button type="button" size="lg" variant="outline" className="min-h-12" onClick={() => void desconectar()}>
+              Desvincular
+            </Button>
+          ) : null}
+        </div>
+        {bridge.status === "qr" && bridge.qrDataUrl ? (
+          <div className="mt-4 rounded-xl bg-background p-3 ring-1 ring-foreground/10">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={bridge.qrDataUrl} alt="Código QR para vincular WhatsApp" className="mx-auto size-56" />
+            <p className="mt-2 text-center text-sm text-muted-foreground">Escaneá con el teléfono.</p>
+          </div>
+        ) : null}
+        {bridge.status === "connected" ? (
+          <p className="mt-4 text-sm">WhatsApp conectado{bridge.me ? ` · ${bridge.me}` : ""}.</p>
+        ) : null}
+        {bridge.error ? <p className="mt-3 text-sm text-destructive">{bridge.error}</p> : null}
+      </section>
+
+      <section className="mt-8 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
+        <h2 className="font-heading text-xl">2. El texto exacto, por empresa</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          Cambia solo la ficha. Así se ve, por ejemplo, para {sample?.name}:
+        </p>
+        <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-xl bg-background p-4 text-sm leading-6 ring-1 ring-foreground/10">
+          {sample ? outreachMessage(sample) : ""}
+        </pre>
+      </section>
+
+      <section className="mt-8 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
+        <h2 className="font-heading text-xl">3. Enviar a todos los locales</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          {pendingSlugs.length} con teléfono, pendientes. Cada uno: primero a tu chat, después al
+          local, con una pausa para que WhatsApp no te corte. Los que no tienen WhatsApp quedan
+          marcados y seguís con el siguiente.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="lg"
+            className="min-h-12"
+            disabled={!ready || bridge.status !== "connected" || bridge.sending || !pendingSlugs.length || busy === "enviar"}
+            onClick={() => void enviarTodos()}
+          >
+            Enviar a todos desde mi WhatsApp
+          </Button>
+          {bridge.sending ? (
+            <Button type="button" size="lg" variant="outline" className="min-h-12" onClick={() => void parar()}>
+              Parar
+            </Button>
+          ) : null}
+        </div>
+        {bridge.sending || bridge.rows.length ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            {bridge.current} de {bridge.total}
+          </p>
+        ) : null}
+        {bridge.rows.length ? (
+          <ul className="mt-4 divide-y rounded-xl bg-background ring-1 ring-foreground/10">
+            {bridge.rows.map((row) => (
+              <li key={row.slug} className="flex items-start justify-between gap-3 px-3 py-2 text-sm">
+                <span>{row.name}</span>
+                <span className="text-right text-muted-foreground">
+                  {phaseLabel[row.phase]}
+                  {row.detail ? ` · ${row.detail}` : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
+
+      <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <label className="grid min-w-0 flex-1 gap-2 text-sm font-medium" htmlFor="buscar-campana">
           Buscar local
           <Input
@@ -241,7 +384,7 @@ export function CampanaPanel() {
             Pendientes ({pendientes})
           </FilterChip>
           <FilterChip current={filter} value="mandados" onClick={setFilter}>
-            Ya me los mandé ({mandados})
+            Ya salieron ({mandados})
           </FilterChip>
           <FilterChip current={filter} value="todos" onClick={setFilter}>
             Todos ({catalog.length})
@@ -249,29 +392,17 @@ export function CampanaPanel() {
         </div>
       </div>
 
-      {!ready ? (
-        <p className="mt-8 rounded-xl border border-dashed px-4 py-6 text-sm text-muted-foreground">
-          Guardá tu WhatsApp arriba. Hasta entonces no se abre ningún chat.
-        </p>
-      ) : null}
-
-      {ready && visible.length === 0 ? (
-        <p className="mt-8 rounded-xl bg-card px-4 py-6 text-sm text-muted-foreground ring-1 ring-foreground/8">
-          No hay locales en esta lista. Cambiá el filtro o la búsqueda.
-        </p>
-      ) : null}
-
       <ul className="mt-6 space-y-4">
         {visible.map((place) => {
           const mandado = Boolean(sent[place.slug]);
-          const url = ready ? myWhatsAppUrl(savedPhone, selfOutreachMessage(place)) : null;
+          const row = bridge.rows.find((item) => item.slug === place.slug);
           return (
             <li key={place.slug}>
               <Card className="py-0">
                 <CardHeader className="pt-4">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <CardTitle className="text-xl">{place.name}</CardTitle>
-                    {mandado ? <Badge>En tu WhatsApp</Badge> : <Badge variant="outline">Pendiente</Badge>}
+                    {mandado ? <Badge>Enviado</Badge> : <Badge variant="outline">Pendiente</Badge>}
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {kindLabels[place.kind]} · {departmentShort[place.department]} · {place.locality}
@@ -279,9 +410,10 @@ export function CampanaPanel() {
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   <p>
-                    <span className="text-muted-foreground">Reenviar a: </span>
-                    {place.phone ?? "sin teléfono en la ficha, buscalo por el nombre"}
+                    <span className="text-muted-foreground">Contacto: </span>
+                    {place.phone ?? "sin teléfono — no entra en el envío masivo"}
                   </p>
+                  {row ? <p className="text-muted-foreground">{phaseLabel[row.phase]}</p> : null}
                   <Link href={`/lugares/${place.slug}`} className="text-sm underline underline-offset-4">
                     Ver ficha
                   </Link>
@@ -290,22 +422,12 @@ export function CampanaPanel() {
                   <Button
                     type="button"
                     size="lg"
-                    className="min-h-12 w-full sm:flex-1"
-                    disabled={!url}
-                    onClick={() => sendToMe(place)}
-                  >
-                    <SendIcon />
-                    Mandarme este
-                  </Button>
-                  <Button
-                    type="button"
-                    size="lg"
                     variant="outline"
                     className="min-h-12 w-full sm:w-auto"
                     onClick={() => void copyMessage(place)}
                   >
                     {copied === place.slug ? <CheckIcon /> : <CopyIcon />}
-                    {copied === place.slug ? "Copiado" : "Copiar"}
+                    {copied === place.slug ? "Copiado" : "Copiar texto"}
                   </Button>
                   {mandado ? (
                     <Button
