@@ -40,7 +40,12 @@ export function UsoPanel() {
 
   useEffect(() => {
     void load();
-    const timer = window.setInterval(() => void load(), 15000);
+    const timer = window.setInterval(() => {
+      void fetch("/api/uso", { cache: "no-store" })
+        .then((response) => (response.ok ? response.json() : Promise.reject()))
+        .then((next) => setData(next as UsoState))
+        .catch(() => undefined);
+    }, 20000);
     return () => window.clearInterval(timer);
   }, []);
 

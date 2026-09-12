@@ -18,6 +18,7 @@ export function PlaceCard({ place }: { place: Place }) {
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover"
+            loading="lazy"
           />
           <div className="absolute inset-x-3 top-3 z-10 flex flex-wrap gap-1.5">
             <VisibilityBadge value={place.visibility} onPhoto />

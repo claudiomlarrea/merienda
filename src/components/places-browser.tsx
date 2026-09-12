@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PlaceCard } from "@/components/place-card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,8 @@ const emptyCopy: Record<string, { title: string; body: string }> = {
   },
 };
 
+const PAGE_SIZE = 18;
+
 export function PlacesBrowser({
   initialDepartment,
 }: {
@@ -45,8 +47,15 @@ export function PlacesBrowser({
   const onlySaved = searchParams.get("guardados") === "1";
   const qParam = searchParams.get("q") ?? "";
   const [q, setQ] = useState(qParam);
+  const [qDebounced, setQDebounced] = useState(qParam);
+  const [shown, setShown] = useState(PAGE_SIZE);
 
   const all = useMemo(() => [...extras, ...catalog], [extras]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setQDebounced(q), 80);
+    return () => window.clearTimeout(timer);
+  }, [q]);
 
   function setParam(key: string, value: string) {
     const next = new URLSearchParams(searchParams.toString());
@@ -57,7 +66,7 @@ export function PlacesBrowser({
   }
 
   const filtered = useMemo(() => {
-    const query = q.trim();
+    const query = qDebounced.trim();
     return all.filter((place) => {
       if (department && place.department !== department) return false;
       if (kind && place.kind !== kind) return false;
@@ -68,7 +77,17 @@ export function PlacesBrowser({
       if (!query) return true;
       return matchesPlaceQuery(place, query);
     });
-  }, [all, department, kind, moment, visibility, cocina, onlySaved, saved, q]);
+  }, [all, department, kind, moment, visibility, cocina, onlySaved, saved, qDebounced]);
+
+  useEffect(() => {
+    setShown(PAGE_SIZE);
+  }, [department, kind, moment, visibility, cocina, onlySaved, qDebounced]);
+
+  const visible = filtered.slice(0, shown);
+
+  function typeQuery(value: string) {
+    setQ(value);
+  }
 
   return (
     <div className="space-y-6">
@@ -76,6 +95,7 @@ export function PlacesBrowser({
         className="flex flex-col gap-3"
         onSubmit={(event) => {
           event.preventDefault();
+          setQDebounced(q);
           setParam("q", q);
         }}
       >
@@ -86,8 +106,10 @@ export function PlacesBrowser({
           <Input
             id="buscar"
             value={q}
-            onValueChange={(value: string) => setQ(value)}
+            onChange={(event) => typeQuery(event.currentTarget.value)}
+            onValueChange={typeQuery}
             placeholder="Pachatas, cafés, vinoteca, bodegas…"
+            autoComplete="off"
             className="min-h-12 bg-card text-base"
           />
           <Button type="submit" size="lg" className="min-h-12 sm:h-12">
@@ -95,7 +117,7 @@ export function PlacesBrowser({
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          La búsqueda ignora tildes.
+          Escribí y se filtra solo. La búsqueda ignora tildes.
         </p>
         <div className="flex flex-wrap gap-2">
           {[
@@ -116,6 +138,7 @@ export function PlacesBrowser({
               className="min-h-11 rounded-full border border-border bg-card px-3.5 py-2 text-sm hover:bg-accent"
               onClick={() => {
                 setQ(term);
+                setQDebounced(term);
                 setParam("q", term);
               }}
             >
@@ -220,12 +243,23 @@ export function PlacesBrowser({
             {filtered.length} {filtered.length === 1 ? "lugar" : "lugares"}
           </p>
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((place) => (
+            {visible.map((place) => (
               <li key={place.slug}>
                 <PlaceCard place={place} />
               </li>
             ))}
           </ul>
+          {shown < filtered.length ? (
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              className="min-h-12 w-full"
+              onClick={() => setShown((count) => count + PAGE_SIZE)}
+            >
+              Ver más lugares ({filtered.length - shown} quedan)
+            </Button>
+          ) : null}
         </>
       )}
     </div>
