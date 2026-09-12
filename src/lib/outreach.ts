@@ -147,16 +147,42 @@ export function venueChatUrl(phone: string, text: string) {
   return `https://api.whatsapp.com/send?phone=${digits}&text=${encodeURIComponent(text)}`;
 }
 
-export function venueSmsUrl(phone: string, text: string) {
-  const digits = toWhatsAppDigits(phone) ?? venueWhatsAppCandidates(phone)[0];
+/**
+ * Número para SMS: como está escrito, sin meterle el 9 de WhatsApp.
+ * Un fijo 264-527-6283 tiene que salir al +542645276283; si no, Mensajes no deja enviar.
+ */
+export function toSmsDigits(phone: string): string | null {
+  let digits = phone.replace(/\D/g, "");
   if (!digits) return null;
-  return `sms:+${digits}?body=${encodeURIComponent(text)}`;
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.startsWith("0")) digits = digits.slice(1);
+  if (!digits.startsWith("54")) digits = `54${digits}`;
+  return digits.length >= 10 ? digits : null;
+}
+
+export function venueSmsUrl(phone: string, text: string) {
+  const digits = toSmsDigits(phone);
+  if (!digits) return null;
+  const encoded = encodeURIComponent(text);
+  return `sms:+${digits}?body=${encoded}`;
+}
+
+/** Samsung a veces arma el SMS con smsto y no con sms. */
+export function venueSmstoUrl(phone: string, text: string) {
+  const digits = toSmsDigits(phone);
+  if (!digits) return null;
+  return `smsto:+${digits}?body=${encodeURIComponent(text)}`;
 }
 
 export function venueCallUrl(phone: string) {
-  const digits = toWhatsAppDigits(phone) ?? venueWhatsAppCandidates(phone)[0];
+  const digits = toSmsDigits(phone);
   if (!digits) return null;
   return `tel:+${digits}`;
+}
+
+export function formatSmsNumber(phone: string) {
+  const digits = toSmsDigits(phone);
+  return digits ? `+${digits}` : phone;
 }
 
 /** Abre un chat con TU WhatsApp. */

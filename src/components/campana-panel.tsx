@@ -7,15 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { SmsQueue } from "@/components/sms-queue";
 import { departmentShort, kindLabels } from "@/lib/labels";
 import {
   SMS_CRED_KEY,
   SMS_SENT_KEY,
   WHATSAPP_ALREADY_SENT,
   needsSmsOutreach,
-  outreachLinkMessage,
   outreachMessage,
-  venueCallUrl,
 } from "@/lib/outreach";
 import { places } from "@/lib/places";
 import type { Place } from "@/lib/types";
@@ -96,7 +95,6 @@ export function CampanaPanel() {
   const [filter, setFilter] = useState<Filter>("pendientes");
   const [copied, setCopied] = useState<string | null>(null);
   const [cred, setCred] = useState<SmsCred>(emptyCred);
-  const [packQr, setPackQr] = useState<{ qrDataUrl: string; url: string; remaining: number } | null>(null);
   const [loteLog, setLoteLog] = useState("");
   const [loteBusy, setLoteBusy] = useState(false);
   const [loteError, setLoteError] = useState("");
@@ -125,33 +123,8 @@ export function CampanaPanel() {
 
   useEffect(() => {
     setCred(readCred());
+    localStorage.removeItem("merienda-sms-auto-done");
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const response = await fetch("/api/campana/sms-pack-qr", { cache: "no-store" });
-        const data = (await response.json()) as {
-          qrDataUrl?: string;
-          url?: string;
-          remaining?: number;
-        };
-        if (cancelled || !response.ok || !data.qrDataUrl || !data.url) return;
-        setPackQr({
-          qrDataUrl: data.qrDataUrl,
-          url: data.url,
-          remaining: data.remaining ?? pendingPlaces.length,
-        });
-      } catch {
-        // el servidor se está levantando
-      }
-    }
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [pendingPlaces.length]);
 
   function mark(slug: string) {
     const next = { ...readSmsSent(), [slug]: true };
@@ -175,22 +148,6 @@ export function CampanaPanel() {
     await navigator.clipboard.writeText(outreachMessage(place));
     setCopied(place.slug);
     window.setTimeout(() => setCopied((currentCopied) => (currentCopied === place.slug ? null : currentCopied)), 1800);
-  }
-
-  async function downloadPack() {
-    const response = await fetch("/campana/sms", { cache: "no-store" });
-    const html = await response.text();
-    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "merienda-sms.html";
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function openPack() {
-    window.location.assign("/campana/sms");
   }
 
   async function sendAllGateway() {
@@ -264,11 +221,11 @@ export function CampanaPanel() {
         Volver a Merienda
       </Link>
       <p className="mt-5 text-xs font-medium tracking-wide text-muted-foreground uppercase">Solo vos</p>
-      <h1 className="font-heading mt-1 text-3xl sm:text-4xl">Mandar el resto por SMS</h1>
+      <h1 className="font-heading mt-1 text-3xl sm:text-4xl">SMS desde el Samsung</h1>
       <p className="mt-3 text-base leading-7 text-muted-foreground">
-        El panel anterior se clavó porque mezclaba WhatsApp, SMS y locales sin teléfono. WhatsApp ya
-        salió a {waCount}. Quedan <strong>{pendingPlaces.length} con teléfono</strong> para SMS.
-        Los {noPhoneCount} sin número no se pueden mandar por acá.
+        En la Mac se abre iMessage y no deja enviar: eso no mandó nada. Escaneá el código con el
+        Samsung. Quedan <strong>{pendingPlaces.length} con teléfono</strong>. Los {waCount} de
+        WhatsApp no se repiten. Los {noPhoneCount} sin número no se pueden SMS.
       </p>
 
       <section className="mt-6 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
@@ -279,41 +236,16 @@ export function CampanaPanel() {
 
         {pendingPlaces.length ? (
           <>
-            <h2 className="font-heading mt-4 text-2xl">Enviar todos</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              En el celular se abre Mensajes (el globito de SMS, no el ícono verde) con el texto de
-              Claudio Larrea. Mandás, volvés, y sigue sola. No se reenvía a quien ya recibió
-              WhatsApp.
-            </p>
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-              <Button type="button" size="lg" className="min-h-12" onClick={openPack}>
-                Enviar todos ahora
-              </Button>
-              <Button type="button" size="lg" variant="outline" className="min-h-12" onClick={() => void downloadPack()}>
-                Bajar para el teléfono
-              </Button>
+            <div className="mt-4">
+              <SmsQueue pending={pendingPlaces} onMark={mark} />
             </div>
-            {packQr ? (
-              <div className="mt-5 rounded-xl bg-background p-3 ring-1 ring-foreground/10 sm:max-w-xs">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={packQr.qrDataUrl}
-                  alt="Abrir el enviador de SMS en el celular"
-                  className="mx-auto size-52 bg-white p-2"
-                />
-                <p className="mt-2 text-center text-sm font-medium">
-                  Escaneá esto en el celular · {packQr.remaining} SMS
-                </p>
-              </div>
-            ) : null}
-
             <details className="mt-5 rounded-xl bg-background p-4 ring-1 ring-foreground/10">
               <summary className="cursor-pointer text-sm font-medium">
                 Mandarlos solos desde acá (HttpSMS o Twilio)
               </summary>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                HttpSMS en el Samsung usa tu chip. Twilio sale con otro número, salvo que tengas
-                sender propio. Las claves quedan en este navegador.
+                HttpSMS en el Samsung usa tu chip y manda de verdad, sin iMessage. Twilio sale con
+                otro número, salvo que tengas sender propio. Las claves quedan en este navegador.
               </p>
               <div className="mt-3 grid gap-3">
                 <label className="grid gap-1 text-sm font-medium">
@@ -390,50 +322,6 @@ export function CampanaPanel() {
               {loteLog ? <p className="mt-3 text-sm">{loteLog}</p> : null}
               {loteError ? <p className="mt-2 text-sm text-destructive">{loteError}</p> : null}
             </details>
-
-            {current ? (
-              <div className="mt-8 border-t border-foreground/10 pt-5">
-                <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                  Siguiente, si mandás de a uno
-                </p>
-                <h3 className="font-heading mt-1 text-2xl">{current.name}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {kindLabels[current.kind]} · {current.locality}
-                </p>
-                <p className="mt-3 font-heading text-2xl tracking-wide">{current.phone}</p>
-                <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-xl bg-background p-4 text-sm leading-6 ring-1 ring-foreground/10">
-                  {outreachLinkMessage(current)}
-                </pre>
-                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                  <Button type="button" size="lg" className="min-h-12" onClick={() => mark(current.slug)}>
-                    Ya lo mandé
-                  </Button>
-                  {current.phone && venueCallUrl(current.phone) ? (
-                    <Button
-                      type="button"
-                      size="lg"
-                      variant="outline"
-                      className="min-h-12"
-                      onClick={() => {
-                        const url = venueCallUrl(current.phone as string);
-                        if (url) window.open(url, "_self");
-                      }}
-                    >
-                      Llamar
-                    </Button>
-                  ) : null}
-                  <Button
-                    type="button"
-                    size="lg"
-                    variant="ghost"
-                    className="min-h-12"
-                    onClick={() => mark(current.slug)}
-                  >
-                    Este número no recibe SMS
-                  </Button>
-                </div>
-              </div>
-            ) : null}
           </>
         ) : (
           <p className="mt-3 text-sm">

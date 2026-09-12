@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     smsQrDataUrl,
     textQrDataUrl,
     smsUrl,
-    text,
+    text: outreachLinkMessage(place),
     phone: place.phone,
     name: place.name,
   });

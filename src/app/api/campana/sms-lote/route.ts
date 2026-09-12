@@ -1,11 +1,5 @@
 import { NextResponse } from "next/server";
-import {
-  needsSmsOutreach,
-  outreachLinkMessage,
-  toWhatsAppDigits,
-  venueWhatsAppCandidates,
-  WHATSAPP_ALREADY_SENT,
-} from "@/lib/outreach";
+import { needsSmsOutreach, outreachLinkMessage, toSmsDigits, WHATSAPP_ALREADY_SENT } from "@/lib/outreach";
 import { getPlace, places } from "@/lib/places";
 
 export const runtime = "nodejs";
@@ -21,7 +15,7 @@ type Body = {
 };
 
 function toNumber(phone: string) {
-  const digits = toWhatsAppDigits(phone) ?? venueWhatsAppCandidates(phone)[0];
+  const digits = toSmsDigits(phone);
   return digits ? `+${digits}` : null;
 }
 
