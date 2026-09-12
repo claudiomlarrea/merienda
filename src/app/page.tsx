@@ -26,7 +26,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-background/35 via-background/62 to-background" />
         </div>
         <div className="relative mx-auto w-full max-w-6xl px-4 pt-8 pb-8 sm:pt-14 sm:pb-10">
-          <p className="stamp inline-block rounded-full bg-background/70 px-3 py-1 text-[11px] backdrop-blur-sm">
+          <p className="stamp inline-block rounded-full bg-background px-3 py-1 text-[11px] font-medium text-foreground shadow-sm ring-1 ring-foreground/15">
             San Juan · Argentina
           </p>
           <h1 className="font-heading mt-5 max-w-3xl text-[2rem] leading-[1.12] sm:text-6xl">

@@ -19,9 +19,13 @@ export function PlaceCard({ place }: { place: Place }) {
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover"
           />
-          <div className="absolute inset-x-3 top-3 flex flex-wrap gap-1.5">
-            <VisibilityBadge value={place.visibility} />
-            {place.community ? <Badge variant="secondary">Sumado acá</Badge> : null}
+          <div className="absolute inset-x-3 top-3 z-10 flex flex-wrap gap-1.5">
+            <VisibilityBadge value={place.visibility} onPhoto />
+            {place.community ? (
+              <Badge className="h-auto min-h-6 border-0 bg-background px-2.5 py-1 text-xs font-medium text-foreground shadow-sm ring-1 ring-foreground/15">
+                Sumado acá
+              </Badge>
+            ) : null}
           </div>
         </div>
         <CardContent className="flex flex-1 flex-col gap-2 py-4">
