@@ -8,7 +8,7 @@ import { departments } from "@/lib/departments";
 import { cocinaLabels, kindLabels, momentLabels, normalizeVisibilityFilter, visibilityLabels } from "@/lib/labels";
 import { type PlacesBrowserQuery } from "@/lib/browser-query";
 import { places as catalog } from "@/lib/places";
-import { filterPlaces } from "@/lib/search";
+import { filterPlaces, fold } from "@/lib/search";
 import { COCINA_TAGS, MOMENTS, PLACE_KINDS, VISIBILITY, type Place } from "@/lib/types";
 import { useCommunity } from "@/context/community-places";
 import { useSaved } from "@/context/saved-places";
@@ -138,16 +138,18 @@ export function PlacesBrowser({
           Escribí y se filtra solo. La búsqueda ignora tildes y no recarga la página.
         </p>
         <div className="flex flex-wrap gap-2">
-          {SEARCH_HINTS.map((term) => (
-            <button
-              key={term}
-              type="button"
-              className="min-h-11 rounded-full border border-border bg-card px-3.5 py-2 text-sm hover:bg-accent"
-              onClick={() => setQ(term)}
-            >
-              {term}
-            </button>
-          ))}
+          {SEARCH_HINTS.map((term) => {
+            const active = fold(q.trim()) === fold(term);
+            return (
+              <Chip
+                key={term}
+                active={active}
+                onClick={() => setQ(active ? "" : term)}
+              >
+                {term}
+              </Chip>
+            );
+          })}
         </div>
       </form>
 
@@ -301,6 +303,7 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
         "min-h-11 rounded-full border px-3.5 py-2 text-sm transition-colors",
         active
