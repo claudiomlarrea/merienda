@@ -1,4 +1,4 @@
-import { departmentShort, kindLabels, sourceLabels } from "@/lib/labels";
+import { departmentShort, kindLabels, matchesMoment, sourceLabels } from "@/lib/labels";
 import type { Place } from "@/lib/types";
 
 export function fold(value: string) {
@@ -92,4 +92,30 @@ export function matchesPlaceQuery(place: Place, rawQuery: string) {
   if (!query) return true;
   const haystack = placeHaystack(place);
   return query.split(/\s+/).every((token) => expandToken(token).some((item) => haystack.includes(item)));
+}
+
+export type PlaceFilters = {
+  q?: string;
+  department?: string;
+  kind?: string;
+  moment?: string;
+  visibility?: string;
+  cocina?: string;
+  onlySaved?: boolean;
+  saved?: string[];
+};
+
+export function filterPlaces(places: Place[], filters: PlaceFilters) {
+  const query = filters.q?.trim() ?? "";
+  const saved = filters.saved ?? [];
+  return places.filter((place) => {
+    if (filters.department && place.department !== filters.department) return false;
+    if (filters.kind && place.kind !== filters.kind) return false;
+    if (filters.moment && !matchesMoment(place, filters.moment)) return false;
+    if (filters.visibility && place.visibility !== filters.visibility) return false;
+    if (filters.cocina && !place.tags.includes(filters.cocina)) return false;
+    if (filters.onlySaved && !saved.includes(place.slug)) return false;
+    if (!query) return true;
+    return matchesPlaceQuery(place, query);
+  });
 }

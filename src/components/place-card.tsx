@@ -1,3 +1,4 @@
+import { memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MapsDirectionsButton } from "@/components/maps-directions-button";
@@ -7,7 +8,7 @@ import { VisibilityBadge } from "@/components/visibility-badge";
 import { departmentShort, kindLabels } from "@/lib/labels";
 import type { Place } from "@/lib/types";
 
-export function PlaceCard({ place }: { place: Place }) {
+export const PlaceCard = memo(function PlaceCard({ place }: { place: Place }) {
   return (
     <Card className="h-full py-0 ring-foreground/8 transition-shadow hover:ring-foreground/20">
       <Link href={`/lugares/${place.slug}`} className="flex min-h-0 flex-1 flex-col">
@@ -43,4 +44,4 @@ export function PlaceCard({ place }: { place: Place }) {
       </CardFooter>
     </Card>
   );
-}
+});

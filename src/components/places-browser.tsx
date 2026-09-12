@@ -1,15 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { PlaceCard } from "@/components/place-card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { departments } from "@/lib/departments";
-import { cocinaLabels, kindLabels, matchesMoment, momentLabels, normalizeVisibilityFilter, visibilityLabels } from "@/lib/labels";
+import { cocinaLabels, kindLabels, momentLabels, normalizeVisibilityFilter, visibilityLabels } from "@/lib/labels";
+import { type PlacesBrowserQuery } from "@/lib/browser-query";
 import { places as catalog } from "@/lib/places";
-import { matchesPlaceQuery } from "@/lib/search";
+import { filterPlaces } from "@/lib/search";
 import { COCINA_TAGS, MOMENTS, PLACE_KINDS, VISIBILITY, type Place } from "@/lib/types";
 import { useCommunity } from "@/context/community-places";
 import { useSaved } from "@/context/saved-places";
@@ -28,65 +27,82 @@ const emptyCopy: Record<string, { title: string; body: string }> = {
 
 const PAGE_SIZE = 18;
 
+const SEARCH_HINTS = [
+  "pachatas",
+  "cafés",
+  "vinoteca",
+  "bodegas",
+  "helado",
+  "sushi",
+  "parrilla",
+  "vegano",
+  "sin tacc",
+  "herboristería",
+];
+
+type Filters = {
+  department: string;
+  kind: string;
+  moment: string;
+  visibility: string;
+  cocina: string;
+  onlySaved: boolean;
+};
+
+function filtersFromQuery(query: PlacesBrowserQuery | undefined, lockedDepartment?: string): Filters {
+  return {
+    department: lockedDepartment ?? query?.depto ?? "",
+    kind: query?.tipo ?? "",
+    moment: query?.momento ?? "",
+    visibility: normalizeVisibilityFilter(query?.visibilidad ?? ""),
+    cocina: query?.cocina ?? "",
+    onlySaved: query?.guardados === "1",
+  };
+}
+
 export function PlacesBrowser({
   initialDepartment,
+  initialQuery,
 }: {
   initialDepartment?: string;
+  initialQuery?: PlacesBrowserQuery;
 }) {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
   const { extras } = useCommunity();
   const { saved } = useSaved();
 
-  const department = initialDepartment ?? searchParams.get("depto") ?? "";
-  const kind = searchParams.get("tipo") ?? "";
-  const moment = searchParams.get("momento") ?? "";
-  const visibility = normalizeVisibilityFilter(searchParams.get("visibilidad") ?? "");
-  const cocina = searchParams.get("cocina") ?? "";
-  const onlySaved = searchParams.get("guardados") === "1";
-  const qParam = searchParams.get("q") ?? "";
-  const [q, setQ] = useState(qParam);
-  const [qDebounced, setQDebounced] = useState(qParam);
+  const [q, setQ] = useState(initialQuery?.q ?? "");
+  const [filters, setFilters] = useState<Filters>(() =>
+    filtersFromQuery(initialQuery, initialDepartment)
+  );
   const [shown, setShown] = useState(PAGE_SIZE);
+  const deferredQ = useDeferredValue(q);
 
   const all = useMemo(() => [...extras, ...catalog], [extras]);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => setQDebounced(q), 80);
-    return () => window.clearTimeout(timer);
-  }, [q]);
-
-  function setParam(key: string, value: string) {
-    const next = new URLSearchParams(searchParams.toString());
-    if (value) next.set(key, value);
-    else next.delete(key);
-    const query = next.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }
-
-  const filtered = useMemo(() => {
-    const query = qDebounced.trim();
-    return all.filter((place) => {
-      if (department && place.department !== department) return false;
-      if (kind && place.kind !== kind) return false;
-      if (moment && !matchesMoment(place, moment)) return false;
-      if (visibility && place.visibility !== visibility) return false;
-      if (cocina && !place.tags.includes(cocina)) return false;
-      if (onlySaved && !saved.includes(place.slug)) return false;
-      if (!query) return true;
-      return matchesPlaceQuery(place, query);
-    });
-  }, [all, department, kind, moment, visibility, cocina, onlySaved, saved, qDebounced]);
+  const filtered = useMemo(
+    () =>
+      filterPlaces(all, {
+        q: deferredQ,
+        department: filters.department,
+        kind: filters.kind,
+        moment: filters.moment,
+        visibility: filters.visibility,
+        cocina: filters.cocina,
+        onlySaved: filters.onlySaved,
+        saved,
+      }),
+    [all, deferredQ, filters, saved]
+  );
 
   useEffect(() => {
     setShown(PAGE_SIZE);
-  }, [department, kind, moment, visibility, cocina, onlySaved, qDebounced]);
+  }, [deferredQ, filters]);
 
   const visible = filtered.slice(0, shown);
+  const searching = deferredQ.trim().length > 0;
 
-  function typeQuery(value: string) {
-    setQ(value);
+  function patchFilters(patch: Partial<Filters>) {
+    setFilters((current) => ({ ...current, ...patch }));
   }
 
   return (
@@ -95,52 +111,39 @@ export function PlacesBrowser({
         className="flex flex-col gap-3"
         onSubmit={(event) => {
           event.preventDefault();
-          setQDebounced(q);
-          setParam("q", q);
         }}
       >
         <label className="text-sm font-medium" htmlFor="buscar">
           Buscar
         </label>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Input
+          <input
             id="buscar"
+            name="q"
+            type="search"
             value={q}
-            onChange={(event) => typeQuery(event.currentTarget.value)}
-            onValueChange={typeQuery}
+            onChange={(event) => setQ(event.target.value)}
             placeholder="Pachatas, cafés, vinoteca, bodegas…"
             autoComplete="off"
-            className="min-h-12 bg-card text-base"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint="search"
+            className="h-12 w-full min-w-0 rounded-lg border border-input bg-card px-3 text-base outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           />
           <Button type="submit" size="lg" className="min-h-12 sm:h-12">
             Buscar
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Escribí y se filtra solo. La búsqueda ignora tildes.
+          Escribí y se filtra solo. La búsqueda ignora tildes y no recarga la página.
         </p>
         <div className="flex flex-wrap gap-2">
-          {[
-            "pachatas",
-            "cafés",
-            "vinoteca",
-            "bodegas",
-            "helado",
-            "sushi",
-            "parrilla",
-            "vegano",
-            "sin tacc",
-            "herboristería",
-          ].map((term) => (
+          {SEARCH_HINTS.map((term) => (
             <button
               key={term}
               type="button"
               className="min-h-11 rounded-full border border-border bg-card px-3.5 py-2 text-sm hover:bg-accent"
-              onClick={() => {
-                setQ(term);
-                setQDebounced(term);
-                setParam("q", term);
-              }}
+              onClick={() => setQ(term)}
             >
               {term}
             </button>
@@ -151,14 +154,14 @@ export function PlacesBrowser({
       <div className="flex flex-col gap-4">
         {!initialDepartment ? (
           <FilterRow label="Departamento">
-            <Chip active={!department} onClick={() => setParam("depto", "")}>
+            <Chip active={!filters.department} onClick={() => patchFilters({ department: "" })}>
               Todos
             </Chip>
             {departments.map((item) => (
               <Chip
                 key={item.id}
-                active={department === item.id}
-                onClick={() => setParam("depto", item.id)}
+                active={filters.department === item.id}
+                onClick={() => patchFilters({ department: item.id })}
               >
                 {item.name}
               </Chip>
@@ -167,14 +170,14 @@ export function PlacesBrowser({
         ) : null}
 
         <FilterRow label="Para">
-          <Chip active={!moment} onClick={() => setParam("momento", "")}>
+          <Chip active={!filters.moment} onClick={() => patchFilters({ moment: "" })}>
             Todos
           </Chip>
           {MOMENTS.map((item) => (
             <Chip
               key={item}
-              active={moment === item}
-              onClick={() => setParam("momento", item)}
+              active={filters.moment === item}
+              onClick={() => patchFilters({ moment: item })}
             >
               {momentLabels[item]}
             </Chip>
@@ -182,25 +185,29 @@ export function PlacesBrowser({
         </FilterRow>
 
         <FilterRow label="Tipo">
-          <Chip active={!kind} onClick={() => setParam("tipo", "")}>
+          <Chip active={!filters.kind} onClick={() => patchFilters({ kind: "" })}>
             Todos
           </Chip>
           {PLACE_KINDS.map((item) => (
-            <Chip key={item} active={kind === item} onClick={() => setParam("tipo", item)}>
+            <Chip
+              key={item}
+              active={filters.kind === item}
+              onClick={() => patchFilters({ kind: item })}
+            >
               {kindLabels[item]}
             </Chip>
           ))}
         </FilterRow>
 
         <FilterRow label="Cocina">
-          <Chip active={!cocina} onClick={() => setParam("cocina", "")}>
+          <Chip active={!filters.cocina} onClick={() => patchFilters({ cocina: "" })}>
             Todas
           </Chip>
           {COCINA_TAGS.map((item) => (
             <Chip
               key={item}
-              active={cocina === item}
-              onClick={() => setParam("cocina", item)}
+              active={filters.cocina === item}
+              onClick={() => patchFilters({ cocina: item })}
             >
               {cocinaLabels[item]}
             </Chip>
@@ -208,14 +215,14 @@ export function PlacesBrowser({
         </FilterRow>
 
         <FilterRow label="Qué tan conocido">
-          <Chip active={!visibility} onClick={() => setParam("visibilidad", "")}>
+          <Chip active={!filters.visibility} onClick={() => patchFilters({ visibility: "" })}>
             Todos
           </Chip>
           {VISIBILITY.map((item) => (
             <Chip
               key={item}
-              active={visibility === item}
-              onClick={() => setParam("visibilidad", item)}
+              active={filters.visibility === item}
+              onClick={() => patchFilters({ visibility: item })}
             >
               {visibilityLabels[item]}
             </Chip>
@@ -223,10 +230,10 @@ export function PlacesBrowser({
         </FilterRow>
 
         <FilterRow label="Lista">
-          <Chip active={!onlySaved} onClick={() => setParam("guardados", "")}>
+          <Chip active={!filters.onlySaved} onClick={() => patchFilters({ onlySaved: false })}>
             Todos
           </Chip>
-          <Chip active={onlySaved} onClick={() => setParam("guardados", "1")}>
+          <Chip active={filters.onlySaved} onClick={() => patchFilters({ onlySaved: true })}>
             Guardados ({saved.length})
           </Chip>
         </FilterRow>
@@ -234,8 +241,8 @@ export function PlacesBrowser({
 
       {filtered.length === 0 ? (
         <EmptyState
-          copy={qParam ? emptyCopy.search : emptyCopy.filter}
-          savedEmpty={onlySaved && saved.length === 0}
+          copy={searching ? emptyCopy.search : emptyCopy.filter}
+          savedEmpty={filters.onlySaved && saved.length === 0}
         />
       ) : (
         <>

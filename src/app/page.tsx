@@ -1,11 +1,16 @@
-import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PlacesBrowser } from "@/components/places-browser";
 import { Button } from "@/components/ui/button";
+import { placesBrowserQuery } from "@/lib/browser-query";
 import { places } from "@/lib/places";
 
-export default function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const query = placesBrowserQuery(await searchParams);
   const paraComer = places.filter((place) =>
     ["restaurante", "comedor", "pizzeria", "empanadas", "vinoteca", "bodega"].includes(place.kind)
   ).length;
@@ -76,9 +81,7 @@ export default function HomePage() {
           Filtrá por merendar o comer, por departamento o por cocina.
         </p>
         <div className="mt-6 sm:mt-8">
-          <Suspense fallback={<p className="text-muted-foreground">Cargando la guía…</p>}>
-            <PlacesBrowser />
-          </Suspense>
+          <PlacesBrowser key={JSON.stringify(query)} initialQuery={query} />
         </div>
       </section>
 
