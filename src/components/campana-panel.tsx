@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { departmentShort, kindLabels } from "@/lib/labels";
 import {
   OUTREACH_SENT_KEY,
-  SHARE_ORIGIN,
   outreachMessage,
   venueChatUrl,
   venueWhatsAppAppUrl,
@@ -237,29 +236,18 @@ export function CampanaPanel() {
       <h1 className="font-heading mt-1 text-3xl sm:text-4xl">Seguir mandando</h1>
 
       <section className="mt-6 rounded-2xl bg-primary px-4 py-4 text-primary-foreground sm:p-5">
-        <h2 className="font-heading text-xl">No uses la computadora</h2>
+        <h2 className="font-heading text-xl">Esta es la página. No la otra.</h2>
         <p className="mt-2 text-sm leading-6">
-          Si tocás Mandar acá, se abre WhatsApp de la Mac y pide un QR. Eso no se puede: WhatsApp te
-          restringió vincular dispositivos. Hay que mandarlo desde el <strong>teléfono</strong>,
-          donde tu cuenta ya está abierta. No escanés nada.
+          merienda-gamma.vercel.app/campana es la web pública vieja: ahí esta pantalla no existe. No
+          vuelvas a esa dirección. Quedate en el Preview de Cursor (127.0.0.1:4567/campana).
         </p>
         <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6">
-          <li>Agarrá el celular. Abrí la app verde de WhatsApp, la de siempre. Listo: no vincules nada.</li>
-          <li>
-            Si todavía ves el reloj de la restricción, esperá a que llegue a 0. Hasta entonces no deja
-            chats nuevos.
-          </li>
-          <li>
-            En el celular abrí Chrome o Safari (no la app de WhatsApp). Entrá a{" "}
-            <span className="break-all font-medium">{SHARE_ORIGIN}/campana</span>
-          </li>
-          <li>Tocá el botón grande Mandar. Se abre el chat del local con el texto ya escrito.</li>
-          <li>Tocá Enviar. Volvé a Merienda y tocá Salió, seguir. Esperá 3 minutos y repetí.</li>
+          <li>Cerrá la pestaña de merienda-gamma. No hace falta esa web para mandar.</li>
+          <li>En Cursor, tocá Preview o el recuadro de la campaña. Tenés que ver “Seguir mandando” y el nombre del próximo local.</li>
+          <li>En esta computadora no abras WhatsApp. El botón copia el enlace del chat.</li>
+          <li>En el celular, abrí WhatsApp (la app de siempre, sin QR) y pegá ese enlace en un chat con vos mismo, o en Chrome.</li>
+          <li>Si WhatsApp todavía tiene el reloj de restricción, no va a dejar el chat nuevo. Cuando llegue a 0, abrí el enlace y tocá Enviar.</li>
         </ol>
-        <p className="mt-3 text-sm leading-6">
-          En la pantalla verde, si aparece, tocá solo <strong>Abrir aplicación</strong> y nunca
-          “Continuar en WhatsApp Web”.
-        </p>
       </section>
 
       <section className="mt-6 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
