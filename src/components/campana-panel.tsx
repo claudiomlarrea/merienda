@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { CheckIcon, CopyIcon, SendIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -35,9 +35,10 @@ function readMyPhone() {
   return localStorage.getItem(MY_WHATSAPP_KEY) ?? "";
 }
 
-function readSent(): Record<string, number> {
+function readSent(): Record<string, boolean> {
   try {
-    return JSON.parse(localStorage.getItem(OUTREACH_SENT_KEY) ?? "{}") as Record<string, number>;
+    const raw = JSON.parse(localStorage.getItem(OUTREACH_SENT_KEY) ?? "{}") as Record<string, boolean | number>;
+    return Object.fromEntries(Object.keys(raw).map((slug) => [slug, true]));
   } catch {
     return {};
   }
@@ -55,18 +56,16 @@ export function CampanaPanel() {
   const raw = useSyncExternalStore(subscribe, snapshot, emptySnapshot);
   const { phone: savedPhone, sent } = useMemo(() => {
     try {
-      const parsed = JSON.parse(raw) as { phone?: string; sent?: Record<string, number> };
+      const parsed = JSON.parse(raw) as { phone?: string; sent?: Record<string, boolean> };
       return { phone: parsed.phone ?? "", sent: parsed.sent ?? {} };
     } catch {
-      return { phone: "", sent: {} as Record<string, number> };
+      return { phone: "", sent: {} as Record<string, boolean> };
     }
   }, [raw]);
 
   const [draft, setDraft] = useState("");
-
-  useEffect(() => {
-    if (savedPhone) setDraft(savedPhone);
-  }, [savedPhone]);
+  const [editingPhone, setEditingPhone] = useState(false);
+  const phoneValue = editingPhone ? draft : savedPhone;
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("pendientes");
   const [copied, setCopied] = useState<string | null>(null);
@@ -97,18 +96,19 @@ export function CampanaPanel() {
 
   function savePhone(event: React.FormEvent) {
     event.preventDefault();
-    const next = toWhatsAppDigits(draft);
+    const next = toWhatsAppDigits(phoneValue);
     if (!next) {
       setPhoneError("Poné tu celular con código de área. Ejemplo: 264 555 1234.");
       return;
     }
     setPhoneError("");
-    localStorage.setItem(MY_WHATSAPP_KEY, draft.trim());
+    localStorage.setItem(MY_WHATSAPP_KEY, phoneValue.trim());
+    setEditingPhone(false);
     emit();
   }
 
   function markSent(slug: string) {
-    const next = { ...readSent(), [slug]: Date.now() };
+    const next = { ...readSent(), [slug]: true };
     localStorage.setItem(OUTREACH_SENT_KEY, JSON.stringify(next));
     emit();
   }
@@ -156,8 +156,11 @@ export function CampanaPanel() {
             inputMode="tel"
             autoComplete="tel"
             placeholder="264 155 1234"
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
+            value={phoneValue}
+            onChange={(event) => {
+              setEditingPhone(true);
+              setDraft(event.target.value);
+            }}
             className="h-12 bg-background text-base"
           />
         </label>
