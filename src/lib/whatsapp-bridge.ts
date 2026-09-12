@@ -17,6 +17,16 @@ const PROGRESS_FILE = path.join(AUTH_DIR, "campaign-progress.json");
 const SEND_TIMEOUT_MS = 16000;
 const VENUE_GAP_MS = 5500;
 
+/** Salieron de verdad antes de que se trabara el envío. No reenviar. */
+const SENT_BEFORE_HANG = new Set([
+  "la-coqueta",
+  "gardel-confiteria",
+  "el-ensueno-ullum",
+  "cinco-uno",
+  "entre-montanas",
+  "casa-lena",
+]);
+
 export type SendRow = {
   slug: string;
   name: string;
@@ -85,9 +95,36 @@ function getBridge(): Bridge {
   return globalForWa.meriendaWa;
 }
 
+function isConfirmedSend(row: SendRow) {
+  return row.phase === "ok" && (row.detail === "Salió de tu WhatsApp." || SENT_BEFORE_HANG.has(row.slug));
+}
+
+function repairRows(rows: SendRow[]): { rows: SendRow[]; changed: boolean } {
+  let changed = false;
+  const next = rows.map((row) => {
+    if (row.phase === "ok" && !isConfirmedSend(row)) {
+      changed = true;
+      return { slug: row.slug, name: row.name, phase: "pendiente" as const };
+    }
+    return row;
+  });
+  return { rows: next, changed };
+}
+
 export async function getSnapshot(): Promise<BridgeSnapshot> {
   await hydrateProgress();
   const bridge = getBridge();
+  const repaired = repairRows(bridge.snapshot.rows);
+  if (repaired.changed) {
+    const done = repaired.rows.filter((row) => row.phase === "ok" || row.phase === "sin-whatsapp").length;
+    patch({
+      rows: repaired.rows,
+      current: done,
+      total: repaired.rows.length,
+      sending: false,
+    });
+    void persistRows(repaired.rows);
+  }
   if (!bridge.sock && !bridge.connecting && bridge.snapshot.status === "idle") {
     try {
       await access(path.join(AUTH_DIR, "creds.json"));
@@ -96,7 +133,7 @@ export async function getSnapshot(): Promise<BridgeSnapshot> {
       // no hay sesión guardada
     }
   }
-  return bridge.snapshot;
+  return getBridge().snapshot;
 }
 
 async function hydrateProgress() {
@@ -347,11 +384,12 @@ export async function sendCampaign(
   }
 
   const skip = new Set(
-    bridge.snapshot.rows
-      .filter((row) => row.phase === "ok" || row.phase === "sin-whatsapp")
-      .map((row) => row.slug)
+    bridge.snapshot.rows.filter((row) => isConfirmedSend(row) || row.phase === "sin-whatsapp").map((row) => row.slug)
   );
-  for (const slug of options?.alreadySent ?? []) skip.add(slug);
+  for (const slug of options?.alreadySent ?? []) {
+    const row = bridge.snapshot.rows.find((item) => item.slug === slug);
+    if (!row || isConfirmedSend(row) || row.phase === "sin-whatsapp") skip.add(slug);
+  }
 
   const requested = slugs.filter((slug) => !skip.has(slug));
   const targets = places.filter((place) => requested.includes(place.slug) && place.phone);
@@ -362,20 +400,7 @@ export async function sendCampaign(
   const runId = ++bridge.runId;
   bridge.stopRequested = false;
   const previous = new Map(bridge.snapshot.rows.map((row) => [row.slug, row]));
-  const kept = [
-    ...bridge.snapshot.rows.filter((row) => skip.has(row.slug)),
-    ...[...skip]
-      .filter((slug) => !bridge.snapshot.rows.some((row) => row.slug === slug))
-      .map((slug) => {
-        const place = places.find((item) => item.slug === slug);
-        return {
-          slug,
-          name: place?.name ?? slug,
-          phase: "ok" as const,
-          detail: "Ya había salido.",
-        };
-      }),
-  ];
+  const kept = bridge.snapshot.rows.filter((row) => skip.has(row.slug));
   const rows: SendRow[] = [
     ...kept,
     ...targets.map((place) => ({

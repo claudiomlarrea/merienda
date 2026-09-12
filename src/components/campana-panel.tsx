@@ -192,11 +192,13 @@ export function CampanaPanel() {
     const next = { ...readSent() };
     let changed = false;
     for (const row of bridge.rows) {
-      if ((row.phase === "ok" || row.phase === "a-mi" || row.phase === "al-local") && !next[row.slug]) {
-        if (row.phase === "ok") {
-          next[row.slug] = true;
-          changed = true;
-        }
+      if (row.phase === "ok" && !next[row.slug]) {
+        next[row.slug] = true;
+        changed = true;
+      }
+      if (row.phase !== "ok" && row.phase !== "sin-whatsapp" && next[row.slug]) {
+        delete next[row.slug];
+        changed = true;
       }
     }
     if (changed) {
