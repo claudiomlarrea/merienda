@@ -1,6 +1,6 @@
 import "server-only";
 
-import { access, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import QRCode from "qrcode";
 import { places } from "@/lib/places";
@@ -124,14 +124,8 @@ export async function getSnapshot(): Promise<BridgeSnapshot> {
       sending: false,
     });
     void persistRows(repaired.rows);
-  }
-  if (!bridge.sock && !bridge.connecting && bridge.snapshot.status === "idle") {
-    try {
-      await access(path.join(AUTH_DIR, "creds.json"));
-      void connectWhatsApp();
-    } catch {
-      // no hay sesión guardada
-    }
+  } else if (bridge.snapshot.rows.length) {
+    void persistRows(bridge.snapshot.rows);
   }
   return getBridge().snapshot;
 }

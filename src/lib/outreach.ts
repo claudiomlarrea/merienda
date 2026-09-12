@@ -68,6 +68,12 @@ export function whatsappJid(digits: string) {
   return `${digits}@s.whatsapp.net`;
 }
 
+export function venueChatUrl(phone: string, text: string) {
+  const digits = toWhatsAppDigits(phone) ?? venueWhatsAppCandidates(phone)[0];
+  if (!digits) return null;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+}
+
 /** Abre un chat con TU WhatsApp. */
 export function myWhatsAppUrl(myPhone: string, text: string) {
   const digits = toWhatsAppDigits(myPhone);
