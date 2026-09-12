@@ -74,6 +74,12 @@ export function venueChatUrl(phone: string, text: string) {
   return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
 
+export function venueWhatsAppAppUrl(phone: string, text: string) {
+  const digits = toWhatsAppDigits(phone) ?? venueWhatsAppCandidates(phone)[0];
+  if (!digits) return null;
+  return `whatsapp://send?phone=${digits}&text=${encodeURIComponent(text)}`;
+}
+
 /** Abre un chat con TU WhatsApp. */
 export function myWhatsAppUrl(myPhone: string, text: string) {
   const digits = toWhatsAppDigits(myPhone);

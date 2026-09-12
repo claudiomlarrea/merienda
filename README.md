@@ -27,7 +27,7 @@ Recomendación: subila a **Vercel**. Conectá el repo, `npm run build` corre sol
 - El buscador ignora tildes y entiende “pachatas”, “cafés”, “helado”, “parrilla”, “herboristería”, “sin tacc”.
 - Rutas (Zonda–Ullum, Libertador, Desamparados, Barreal, Jáchal, Valle Fértil).
 - Formulario para **sumar un local** aunque falte la calle. En este prototipo se guarda en el navegador.
-- Pantalla **Enviar desde mi WhatsApp** (`/campana`): no está en el menú público. WhatsApp restringe si se mandan muchos chats nuevos de golpe. El envío automático está parado. Cuando se levante la restricción, se manda de a 8 por día, a mano, con el texto de **Claudio Larrea** y la ficha de cada local.
+- Pantalla **Enviar desde mi WhatsApp** (`/campana`): sin QR. Abre la app de WhatsApp con el texto de **Claudio Larrea** y la ficha de cada local que falta. Se manda de a uno, con 3 minutos de pausa, para no repetir la restricción de chats nuevos.
 
 Los horarios de pueblo cambian. La guía lo dice en cada ficha: confirmá por redes antes de cruzar el dique.
 
