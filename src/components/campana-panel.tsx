@@ -300,7 +300,7 @@ export function CampanaPanel() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
+    <div className="mx-auto w-full max-w-3xl px-4 py-6 pb-32 sm:py-10 sm:pb-32">
       <Link
         href="/"
         className="inline-flex min-h-11 items-center gap-2 text-sm font-medium underline-offset-4 hover:underline"
@@ -396,27 +396,15 @@ export function CampanaPanel() {
         {bridge.error ? <p className="mt-3 text-sm text-destructive">{bridge.error}</p> : null}
       </section>
 
-      <section className="mt-8 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
-        <h2 className="font-heading text-xl">2. El texto exacto, por empresa</h2>
+      <section id="continuar" className="mt-8 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
+        <h2 className="font-heading text-xl">2. Enviar a todos los locales</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          Cambia solo la ficha. Así se ve, por ejemplo, para {sample?.name}:
-        </p>
-        <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-xl bg-background p-4 text-sm leading-6 ring-1 ring-foreground/10">
-          {sample ? outreachMessage(sample) : ""}
-        </pre>
-      </section>
-
-      <section className="mt-8 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
-        <h2 className="font-heading text-xl">3. Enviar a todos los locales</h2>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          {pendingSlugs.length} con teléfono, pendientes. El mensaje largo va al local. Si WhatsApp
-          se corta a mitad (pasó en Isalú), no recargues: tocá Continuar.
+          {pendingSlugs.length} con teléfono, pendientes. El botón grande de abajo arranca el envío.
+          Los que ya salieron no se vuelven a mandar.
         </p>
         {stuck ? (
           <p className="mt-3 rounded-xl bg-primary px-4 py-3 text-sm text-primary-foreground">
-            Se trabó. WhatsApp a veces corta si mandás muchos seguidos a tu propio chat. Ahora el
-            texto largo va solo al local. Tocá Continuar: los que ya salieron no se tocan; Isalú y
-            el resto se reintentan.
+            Se trabó. Tocá Continuar: Isalú y el resto se reintentan; los que ya salieron no se tocan.
           </p>
         ) : showContinuar ? (
           <p className="mt-3 rounded-xl bg-muted px-4 py-3 text-sm">
@@ -424,34 +412,17 @@ export function CampanaPanel() {
             Coqueta ni los que ya figuran enviados.
           </p>
         ) : null}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {showContinuar ? (
-            <Button
-              type="button"
-              size="lg"
-              className="min-h-12"
-              disabled={!ready || busy === "enviar" || (bridge.status !== "connected" && bridge.status !== "sending")}
-              onClick={() => void enviarTodos(true)}
-            >
-              Continuar desde acá
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              size="lg"
-              className="min-h-12"
-              disabled={!ready || bridge.status !== "connected" || !pendingSlugs.length || busy === "enviar"}
-              onClick={() => void enviarTodos(false)}
-            >
-              Enviar a todos desde mi WhatsApp
-            </Button>
-          )}
-          {bridge.sending ? (
-            <Button type="button" size="lg" variant="outline" className="min-h-12" onClick={() => void parar()}>
-              Parar
-            </Button>
-          ) : null}
-        </div>
+        <SendActions
+          showContinuar={showContinuar}
+          ready={ready}
+          busy={busy}
+          connected={bridge.status === "connected" || bridge.status === "sending"}
+          sending={bridge.sending}
+          stuck={stuck}
+          pendingCount={pendingSlugs.length}
+          onEnviar={() => void enviarTodos(showContinuar)}
+          onParar={() => void parar()}
+        />
         {bridge.sending || bridge.rows.length ? (
           <p className="mt-4 text-sm text-muted-foreground">
             {bridge.current} de {bridge.total}
@@ -470,6 +441,16 @@ export function CampanaPanel() {
             ))}
           </ul>
         ) : null}
+      </section>
+
+      <section className="mt-8 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
+        <h2 className="font-heading text-xl">3. El texto exacto, por empresa</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          Cambia solo la ficha. Así se ve, por ejemplo, para {sample?.name}:
+        </p>
+        <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-xl bg-background p-4 text-sm leading-6 ring-1 ring-foreground/10">
+          {sample ? outreachMessage(sample) : ""}
+        </pre>
       </section>
 
       <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -550,6 +531,85 @@ export function CampanaPanel() {
           );
         })}
       </ul>
+
+      <div className="fixed inset-x-0 bottom-16 z-40 border-t border-border/80 bg-background/95 p-3 backdrop-blur-md md:bottom-0" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-2 sm:flex-row sm:items-center">
+          <p className="text-sm text-muted-foreground sm:flex-1">
+            {bridge.status !== "connected" && !bridge.sending
+              ? "Primero vinculá el WhatsApp arriba. Después sale el envío."
+              : bridge.sending
+                ? `Enviando ${bridge.current} de ${bridge.total}.`
+                : `${pendingSlugs.length} pendientes. Los que ya salieron no se tocan.`}
+          </p>
+          <SendActions
+            showContinuar={showContinuar}
+            ready={ready}
+            busy={busy}
+            connected={bridge.status === "connected" || bridge.status === "sending"}
+            sending={bridge.sending}
+            stuck={stuck}
+            pendingCount={pendingSlugs.length}
+            fullWidth
+            onEnviar={() => void enviarTodos(showContinuar)}
+            onParar={() => void parar()}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SendActions({
+  showContinuar,
+  ready,
+  busy,
+  connected,
+  sending,
+  stuck,
+  pendingCount,
+  fullWidth,
+  onEnviar,
+  onParar,
+}: {
+  showContinuar: boolean;
+  ready: boolean;
+  busy: string;
+  connected: boolean;
+  sending: boolean;
+  stuck: boolean;
+  pendingCount: number;
+  fullWidth?: boolean;
+  onEnviar: () => void;
+  onParar: () => void;
+}) {
+  return (
+    <div className={fullWidth ? "flex w-full flex-wrap gap-2 sm:w-auto" : "mt-4 flex flex-wrap gap-2"}>
+      {showContinuar ? (
+        <Button
+          type="button"
+          size="lg"
+          className={fullWidth ? "min-h-12 flex-1 sm:min-w-56" : "min-h-12"}
+          disabled={!ready || busy === "enviar" || !connected || (sending && !stuck)}
+          onClick={onEnviar}
+        >
+          Continuar desde acá
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          size="lg"
+          className={fullWidth ? "min-h-12 flex-1 sm:min-w-56" : "min-h-12"}
+          disabled={!ready || !connected || !pendingCount || busy === "enviar"}
+          onClick={onEnviar}
+        >
+          Enviar a todos desde mi WhatsApp
+        </Button>
+      )}
+      {sending ? (
+        <Button type="button" size="lg" variant="outline" className="min-h-12" onClick={onParar}>
+          Parar
+        </Button>
+      ) : null}
     </div>
   );
 }
