@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { ArrowLeftIcon, CheckIcon, CopyIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -112,6 +112,7 @@ export function CampanaPanel() {
   const [bridge, setBridge] = useState<BridgeSnapshot>(emptyBridge);
   const [busy, setBusy] = useState("");
   const [now, setNow] = useState(() => Date.now());
+  const autoQr = useRef(false);
 
   const digits = toWhatsAppDigits(savedPhone);
   const ready = Boolean(digits);
@@ -204,6 +205,16 @@ export function CampanaPanel() {
     }
   }, [bridge.rows]);
 
+  useEffect(() => {
+    if (bridge.status === "error" && !bridge.qrDataUrl && !autoQr.current) {
+      autoQr.current = true;
+      void conectar(true);
+    }
+    if (bridge.status === "qr" || bridge.status === "connected") {
+      autoQr.current = false;
+    }
+  }, [bridge.status, bridge.qrDataUrl]);
+
   function savePhone(event: React.FormEvent) {
     event.preventDefault();
     const next = toWhatsAppDigits(phoneValue);
@@ -230,10 +241,14 @@ export function CampanaPanel() {
     window.setTimeout(() => setCopied((current) => (current === place.slug ? null : current)), 1800);
   }
 
-  async function conectar() {
+  async function conectar(reset = false) {
     setBusy("conectar");
     try {
-      await fetch("/api/campana/conectar", { method: "POST" });
+      await fetch("/api/campana/conectar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reset: reset || bridge.status === "error" }),
+      });
     } finally {
       setBusy("");
     }
@@ -333,12 +348,29 @@ export function CampanaPanel() {
       <section className="mt-8 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
         <h2 className="font-heading text-xl">1. Vincular tu WhatsApp</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          En el teléfono: WhatsApp → Dispositivos vinculados → Vincular. Escaneá el código. Queda
-          como WhatsApp Web: los mensajes salen de tu cuenta.
+          En el teléfono: WhatsApp → Dispositivos vinculados → Vincular un dispositivo. Escaneá el
+          código de acá. Si dice que se cerró la sesión, no pasa nada: volvé a escanear y después
+          Continuar. Los que ya salieron no se mandan de nuevo.
         </p>
+        {bridge.status === "error" ? (
+          <p className="mt-3 rounded-xl bg-primary px-4 py-3 text-sm text-primary-foreground">
+            Hay que volver a vincular el WhatsApp. El código aparece solo; si no, tocá el botón y
+            escaneá. Después, Continuar desde Isalú.
+          </p>
+        ) : null}
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button type="button" size="lg" className="min-h-12" onClick={() => void conectar()} disabled={busy === "conectar" || bridge.status === "connected"}>
-            {bridge.status === "connected" ? "Vinculado" : "Mostrar código QR"}
+          <Button
+            type="button"
+            size="lg"
+            className="min-h-12"
+            onClick={() => void conectar(bridge.status === "error")}
+            disabled={busy === "conectar" || bridge.status === "connected"}
+          >
+            {bridge.status === "connected"
+              ? "Vinculado"
+              : bridge.status === "error"
+                ? "Volver a mostrar el código"
+                : "Mostrar código QR"}
           </Button>
           {bridge.status === "connected" ? (
             <Button type="button" size="lg" variant="outline" className="min-h-12" onClick={() => void desconectar()}>
@@ -346,7 +378,10 @@ export function CampanaPanel() {
             </Button>
           ) : null}
         </div>
-        {bridge.status === "qr" && bridge.qrDataUrl ? (
+        {(bridge.status === "qr" || busy === "conectar") && !bridge.qrDataUrl ? (
+          <p className="mt-4 text-sm text-muted-foreground">Generando el código…</p>
+        ) : null}
+        {bridge.qrDataUrl ? (
           <div className="mt-4 rounded-xl bg-background p-3 ring-1 ring-foreground/10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={bridge.qrDataUrl} alt="Código QR para vincular WhatsApp" className="mx-auto size-56" />

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { access, mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import QRCode from "qrcode";
 import { places } from "@/lib/places";
@@ -53,6 +53,7 @@ type Bridge = {
   stopRequested: boolean;
   runId: number;
   hydrated: boolean;
+  logoutReset: boolean;
 };
 
 const globalForWa = globalThis as typeof globalThis & { meriendaWa?: Bridge };
@@ -64,6 +65,7 @@ function createBridge(): Bridge {
     stopRequested: false,
     runId: 0,
     hydrated: false,
+    logoutReset: false,
     snapshot: {
       status: "idle",
       qrDataUrl: null,
@@ -123,6 +125,22 @@ async function hydrateProgress() {
   }
 }
 
+async function clearAuthKeepingProgress() {
+  let progress: string | null = null;
+  try {
+    progress = await readFile(PROGRESS_FILE, "utf8");
+  } catch {
+    progress = null;
+  }
+  await rm(AUTH_DIR, { recursive: true, force: true });
+  await mkdir(AUTH_DIR, { recursive: true });
+  if (progress) await writeFile(PROGRESS_FILE, progress, "utf8");
+}
+
+function disconnectCode(error?: { output?: { statusCode?: number }; statusCode?: number }) {
+  return error?.output?.statusCode ?? error?.statusCode;
+}
+
 async function persistRows(rows: SendRow[]) {
   try {
     await mkdir(AUTH_DIR, { recursive: true });
@@ -153,10 +171,23 @@ async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): P
   }
 }
 
-export async function connectWhatsApp() {
+export async function connectWhatsApp(opts?: { reset?: boolean; afterLogout?: boolean }) {
   const bridge = getBridge();
-  if (bridge.snapshot.status === "connected" && bridge.sock) return getSnapshot();
-  if (bridge.connecting) return getSnapshot();
+  const mustReset = Boolean(opts?.reset) || (bridge.snapshot.status === "error" && !opts?.afterLogout);
+  if (bridge.snapshot.status === "connected" && bridge.sock && !mustReset) return getSnapshot();
+  if (bridge.connecting && !mustReset) return getSnapshot();
+
+  if (mustReset) {
+    try {
+      bridge.sock?.end();
+    } catch {
+      // ya estaba cerrado
+    }
+    bridge.sock = null;
+    bridge.connecting = false;
+    await clearAuthKeepingProgress();
+  }
+
   bridge.connecting = true;
   bridge.stopRequested = false;
   patch({ status: "qr", error: null, qrDataUrl: null });
@@ -179,44 +210,61 @@ export async function connectWhatsApp() {
     sock.ev.on("creds.update", saveCreds as never);
     sock.ev.on("connection.update", (async (update: {
       connection?: string;
-      lastDisconnect?: { error?: { output?: { statusCode?: number } } };
+      lastDisconnect?: { error?: { output?: { statusCode?: number }; statusCode?: number } };
       qr?: string;
     }) => {
       if (update.qr) {
         const qrDataUrl = await QRCode.toDataURL(update.qr, { margin: 1, width: 280 });
+        bridge.logoutReset = false;
         patch({ status: "qr", qrDataUrl, error: null });
       }
       if (update.connection === "open") {
         const me = sock.user?.id?.split(":")[0] ?? null;
+        bridge.logoutReset = false;
         patch({ status: "connected", qrDataUrl: null, me, error: null });
         bridge.connecting = false;
       }
       if (update.connection === "close") {
-        const code = update.lastDisconnect?.error?.output?.statusCode;
+        const code = disconnectCode(update.lastDisconnect?.error);
         bridge.sock = null;
         bridge.connecting = false;
         bridge.stopRequested = true;
         bridge.runId += 1;
         if (code === DisconnectReason.loggedOut) {
+          if (bridge.logoutReset) {
+            patch({
+              status: "error",
+              qrDataUrl: null,
+              me: null,
+              sending: false,
+              error: "WhatsApp pidió volver a escanear. Tocá Mostrar código QR.",
+            });
+            return;
+          }
+          bridge.logoutReset = true;
           patch({
-            status: "error",
+            status: "qr",
             qrDataUrl: null,
             me: null,
             sending: false,
-            error: "WhatsApp cerró la sesión. Volvé a vincular el dispositivo.",
+            error: null,
           });
+          void (async () => {
+            await clearAuthKeepingProgress();
+            await connectWhatsApp({ afterLogout: true });
+          })();
           return;
         }
         if (code === DisconnectReason.restartRequired) {
           patch({ sending: false, status: "qr" });
-          void connectWhatsApp();
+          void connectWhatsApp({ afterLogout: true });
           return;
         }
         patch({
           status: "error",
           qrDataUrl: null,
           sending: false,
-          error: "Se cortó WhatsApp. Tocá Vincular y después Continuar.",
+          error: "Se cortó WhatsApp. Tocá Mostrar código QR y después Continuar.",
         });
       }
     }) as never);
