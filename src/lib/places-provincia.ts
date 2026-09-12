@@ -12,14 +12,14 @@ const img = {
   pizza:
     "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1400&q=80",
   regional:
-    "https://images.unsplash.com/photo-1544025162-d76640320d2a?auto=format&fit=crop&w=1400&q=80",
+    "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&w=1400&q=80",
   tea: "https://images.unsplash.com/photo-1497534446932-c925b458314e?auto=format&fit=crop&w=1400&q=80",
   herb: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1400&q=80",
   wine: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1400&q=80",
   vegan:
     "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1400&q=80",
   sandwich:
-    "https://images.unsplash.com/photo-1539252554453-80dab7ca82f8?auto=format&fit=crop&w=1400&q=80",
+    "https://images.unsplash.com/photo-1481070414801-51fd732d7184?auto=format&fit=crop&w=1400&q=80",
 };
 
 /** Locales de departamentos y herboristerías que Maps de Capital no indexa. */

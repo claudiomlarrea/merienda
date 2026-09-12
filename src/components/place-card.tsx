@@ -1,7 +1,7 @@
 import { memo } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { MapsDirectionsButton } from "@/components/maps-directions-button";
+import { PlacePhoto } from "@/components/place-photo";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { VisibilityBadge } from "@/components/visibility-badge";
@@ -13,13 +13,11 @@ export const PlaceCard = memo(function PlaceCard({ place }: { place: Place }) {
     <Card className="h-full py-0 ring-foreground/8 transition-shadow hover:ring-foreground/20">
       <Link href={`/lugares/${place.slug}`} className="flex min-h-0 flex-1 flex-col">
         <div className="relative aspect-[4/3] overflow-hidden">
-          <Image
+          <PlacePhoto
             src={place.image}
             alt={place.imageAlt}
-            fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover"
-            loading="lazy"
           />
           <div className="absolute inset-x-3 top-3 z-10 flex flex-wrap gap-1.5">
             <VisibilityBadge value={place.visibility} onPhoto />

@@ -15,7 +15,7 @@ const img = {
   cinco:
     "https://images.unsplash.com/photo-1493857671505-72967e2e2760?auto=format&fit=crop&w=1400&q=80",
   bendito:
-    "https://images.unsplash.com/photo-1453614512568-7af50c6d2afb?auto=format&fit=crop&w=1400&q=80",
+    "https://images.unsplash.com/photo-1507133750040-4a8f57021571?auto=format&fit=crop&w=1400&q=80",
   franklin:
     "https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=1400&q=80",
   bonito:
@@ -37,7 +37,7 @@ const img = {
   isalu:
     "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1400&q=80",
   juana:
-    "https://images.unsplash.com/photo-1501339845172-3153c2184c68?auto=format&fit=crop&w=1400&q=80",
+    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80",
   parador:
     "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=80",
   rodeo:
@@ -61,7 +61,7 @@ const img = {
   asado:
     "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=1400&q=80",
   regional:
-    "https://images.unsplash.com/photo-1544025162-d76640320d2a?auto=format&fit=crop&w=1400&q=80",
+    "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&w=1400&q=80",
   pizza:
     "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1400&q=80",
   empanada:

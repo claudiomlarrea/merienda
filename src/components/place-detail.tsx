@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { AtSignIcon, ExternalLinkIcon, PhoneIcon } from "lucide-react";
 import { MapsDirectionsButton } from "@/components/maps-directions-button";
+import { PlacePhoto } from "@/components/place-photo";
 import { SaveButton } from "@/components/save-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,12 +27,11 @@ export function PlaceDetail({ place }: { place: Place }) {
 
       <div className="mt-4 overflow-hidden rounded-3xl ring-1 ring-foreground/10">
         <div className="relative aspect-[16/9] min-h-56">
-          <Image
+          <PlacePhoto
             src={place.image}
             alt={place.imageAlt}
-            fill
-            priority
             sizes="100vw"
+            priority
             className="object-cover"
           />
         </div>
