@@ -35,7 +35,7 @@ export function SiteHeader() {
         <div className="flex min-w-0 items-center gap-2">
           <Button
             render={<Link href="/" />}
-            variant={atHome ? "default" : "outline"}
+            variant="default"
             size="sm"
             className="min-h-10 shrink-0"
             aria-current={atHome ? "page" : undefined}

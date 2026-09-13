@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { PlaceCard } from "@/components/place-card";
 import { Button } from "@/components/ui/button";
 import { departments } from "@/lib/departments";
@@ -75,6 +75,8 @@ export function PlacesBrowser({
     filtersFromQuery(initialQuery, initialDepartment)
   );
   const [shown, setShown] = useState(PAGE_SIZE);
+  const [scrollToken, setScrollToken] = useState(0);
+  const resultsRef = useRef<HTMLDivElement>(null);
   const deferredQ = useDeferredValue(q);
 
   const all = useMemo(() => [...extras, ...catalog], [extras]);
@@ -98,11 +100,22 @@ export function PlacesBrowser({
     setShown(PAGE_SIZE);
   }, [deferredQ, filters]);
 
+  useEffect(() => {
+    if (!scrollToken) return;
+    if (deferredQ !== q) return;
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [scrollToken, deferredQ, q, filtered]);
+
   const visible = filtered.slice(0, shown);
   const searching = deferredQ.trim().length > 0;
 
+  function revealResults() {
+    setScrollToken((token) => token + 1);
+  }
+
   function patchFilters(patch: Partial<Filters>) {
     setFilters((current) => ({ ...current, ...patch }));
+    revealResults();
   }
 
   return (
@@ -111,6 +124,7 @@ export function PlacesBrowser({
         className="flex flex-col gap-3"
         onSubmit={(event) => {
           event.preventDefault();
+          revealResults();
         }}
       >
         <label className="text-sm font-medium" htmlFor="buscar">
@@ -144,7 +158,10 @@ export function PlacesBrowser({
               <Chip
                 key={term}
                 active={active}
-                onClick={() => setQ(active ? "" : term)}
+                onClick={() => {
+                  setQ(active ? "" : term);
+                  revealResults();
+                }}
               >
                 {term}
               </Chip>
@@ -241,6 +258,11 @@ export function PlacesBrowser({
         </FilterRow>
       </div>
 
+      <div
+        ref={resultsRef}
+        id="resultados"
+        className="scroll-mt-[calc(4.25rem+env(safe-area-inset-top))]"
+      >
       {filtered.length === 0 ? (
         <EmptyState
           copy={searching ? emptyCopy.search : emptyCopy.filter}
@@ -271,6 +293,7 @@ export function PlacesBrowser({
           ) : null}
         </>
       )}
+      </div>
     </div>
   );
 }
